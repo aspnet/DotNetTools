@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Framework.Logging;
 
 namespace Microsoft.Dnx.Watcher.Core
 {
@@ -37,33 +38,19 @@ namespace Microsoft.Dnx.Watcher.Core
             return _runningProcess.Id;
         }
 
-        public async Task<int> WaitForExitAsync(CancellationToken cancellationToken)
+        public Task<int> WaitForExitAsync(CancellationToken cancellationToken)
         {
-            try
+            cancellationToken.Register(() => _runningProcess?.Kill());
+            
+            return Task.Run(() => 
             {
-                await Task.Run(() =>
-                {
-                    while (!cancellationToken.IsCancellationRequested)
-                    {
-                        if (_runningProcess.WaitForExit(500))
-                        {
-                            break;
-                        }
-                    }
+                _runningProcess.WaitForExit();
 
-                    if (!_runningProcess.HasExited)
-                    {
-                        _runningProcess.Kill();
-                    }
-
-                });
-
-                return _runningProcess.ExitCode;
-            }
-            finally
-            {
+                var exitCode = _runningProcess.ExitCode;
                 _runningProcess = null;
-            }
+
+                return exitCode;
+            });
         }
 
         private static void RemoveCompilationPortEnvironmentVariable(ProcessStartInfo procStartInfo)
