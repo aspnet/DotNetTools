@@ -190,7 +190,6 @@ namespace Microsoft.Dnx.Watcher.Core
         {
             var tcs = new TaskCompletionSource<string>();
 
-            // Review: Do we care about the task being cancelled or just complete?
             cancellationToken.Register(() => tcs.TrySetResult(null));
 
             Action<string> callback = path => 
