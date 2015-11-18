@@ -1,19 +1,19 @@
 {
-  "version": "1.0.0-*",
+  "version": "1.0.0-rc1-final",
   "compilationOptions": {
     "warningsAsErrors": true,
     "keyFile": "../../tools/Key.snk"
   },
   "dependencies": {
-    "Microsoft.AspNet.FileProviders.Abstractions": "1.0.0-*",
-    "Microsoft.AspNet.FileProviders.Physical": "1.0.0-*",
-    "Microsoft.Extensions.PlatformAbstractions": "1.0.0-*",
+    "Microsoft.AspNet.FileProviders.Abstractions": "1.0.0-rc1-final",
+    "Microsoft.AspNet.FileProviders.Physical": "1.0.0-rc1-final",
+    "Microsoft.Extensions.PlatformAbstractions": "1.0.0-rc1-final",
     "Microsoft.Extensions.JsonParser.Sources": {
       "type": "build",
-      "version": "1.0.0-*"
+      "version": "1.0.0-rc1-final"
     },
-    "Microsoft.Extensions.Logging.Abstractions": "1.0.0-*",
-    "Microsoft.Extensions.FileSystemGlobbing": "1.0.0-*"
+    "Microsoft.Extensions.Logging.Abstractions": "1.0.0-rc1-final",
+    "Microsoft.Extensions.FileSystemGlobbing": "1.0.0-rc1-final"
   },
   "frameworks": {
     "dnx451": {
@@ -24,10 +24,10 @@
     },
     "dnxcore50": {
       "dependencies": {
-        "System.Diagnostics.Process": "4.1.0-beta-*",
-        "System.Linq": "4.0.1-beta-*",
-        "System.Runtime.Extensions": "4.0.11-beta-*",
-        "System.Threading.Thread": "4.0.0-beta-*"
+        "System.Diagnostics.Process": "4.1.0-beta-23516",
+        "System.Linq": "4.0.1-beta-23516",
+        "System.Runtime.Extensions": "4.0.11-beta-23516",
+        "System.Threading.Thread": "4.0.0-beta-23516"
       }
     }
   }
