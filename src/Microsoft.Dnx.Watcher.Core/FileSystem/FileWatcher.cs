@@ -211,7 +211,7 @@ namespace Microsoft.Dnx.Watcher.Core
             }
 
             // If we don't find any files then make the project folder the root
-            return projectPath;
+            return Path.GetDirectoryName(projectPath);
         }
     }
 }
