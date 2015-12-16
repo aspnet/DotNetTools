@@ -2,9 +2,14 @@
 [Bb]in/
 TestResults/
 .nuget/
+.build/
+.vs/
+.testPublish/
+*.sln.ide/
 _ReSharper.*/
 packages/
 artifacts/
+.build/
 PublishProfiles/
 *.user
 *.suo
@@ -12,6 +17,7 @@ PublishProfiles/
 *.docstates
 _ReSharper.*
 nuget.exe
+project.lock.json
 *net45.csproj
 *net451.csproj
 *k10.csproj
@@ -23,6 +29,3 @@ nuget.exe
 *.ncrunchsolution
 *.*sdf
 *.ipch
-*.sln.ide
-project.lock.json
-.vs/

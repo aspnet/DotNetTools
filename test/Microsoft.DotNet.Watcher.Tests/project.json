@@ -3,15 +3,16 @@
         "warningsAsErrors": true
     },
     "dependencies": {
+        "Microsoft.NETCore.Platforms": "1.0.0-*",
         "Microsoft.Extensions.PlatformAbstractions": "1.0.0-*",
         "Microsoft.DotNet.Watcher": "1.0.0-*",
-        "xunit.runner.aspnet": "2.0.0-aspnet-*"
+        "System.Linq.Expressions": "4.0.11-beta-*",
+        "xunit": "2.1.0",
+        "dotnet-test-xunit": "0.0.1-dev-1"
     },
+    "testRunner":"xunit",
     "frameworks": {
         "dnxcore50": { }
-    },
-    "commands": {
-        "test": "xunit.runner.aspnet"
     }
 }
 
