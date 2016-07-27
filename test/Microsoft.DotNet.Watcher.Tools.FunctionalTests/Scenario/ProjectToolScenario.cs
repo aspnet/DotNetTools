@@ -67,12 +67,7 @@ namespace Microsoft.DotNet.Watcher.Tools.FunctionalTests
             var projectFile = Path.Combine(WorkFolder, projectName, "project.json");
             Console.WriteLine($"Adding {toolName} to {projectFile}");
 
-            var versionSuffix = Environment.GetEnvironmentVariable("DOTNET_BUILD_VERSION");
-            if (string.IsNullOrEmpty(versionSuffix))
-            {
-               versionSuffix = "*";
-            }
-
+            var versionSuffix = "-preview2-final";
             var projectJson = JObject.Parse(File.ReadAllText(projectFile));
             projectJson.Add("tools",
               new JObject(
