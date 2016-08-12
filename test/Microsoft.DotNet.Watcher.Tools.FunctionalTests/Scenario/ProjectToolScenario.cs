@@ -67,13 +67,12 @@ namespace Microsoft.DotNet.Watcher.Tools.FunctionalTests
             var projectFile = Path.Combine(WorkFolder, projectName, "project.json");
             Console.WriteLine($"Adding {toolName} to {projectFile}");
 
-            var versionSuffix = "-preview2-final";
             var projectJson = JObject.Parse(File.ReadAllText(projectFile));
             projectJson.Add("tools",
               new JObject(
                 new JProperty(toolName,
                   new JObject(
-                    new JProperty("version", "1.0.0-" + versionSuffix),
+                    new JProperty("version", "1.0.0-preview2-final"),
                     new JProperty("imports", "portable-net451+win8")))));
 
             File.WriteAllText(projectFile, projectJson.ToString());
