@@ -1,11 +1,15 @@
 {
   "buildOptions": {
     "warningsAsErrors": true,
-    "keyFile": "../../tools/Key.snk"
+    "keyFile": "../../tools/Key.snk",
+    "compile": {
+      "include": "../Shared/*.cs"
+    }
   },
   "dependencies": {
     "dotnet-test-xunit": "2.2.0-*",
     "Microsoft.Extensions.SecretManager.Tools": "1.0.0-*",
+    "Moq": "4.6.38-alpha",
     "xunit": "2.2.0-*"
   },
   "testRunner": "xunit",

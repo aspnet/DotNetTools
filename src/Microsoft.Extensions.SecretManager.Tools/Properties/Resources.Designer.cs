@@ -59,6 +59,22 @@ namespace Microsoft.Extensions.SecretManager.Tools
         }
 
         /// <summary>
+        /// Could not find 'UserSecretsId' in MSBuild project '{project}'. Ensure this property is set in the project or use the '--id' command line option.
+        /// </summary>
+        internal static string Error_ProjectMissingId
+        {
+            get { return GetString("Error_ProjectMissingId"); }
+        }
+
+        /// <summary>
+        /// Could not find 'UserSecretsId' in MSBuild project '{project}'. Ensure this property is set in the project or use the '--id' command line option.
+        /// </summary>
+        internal static string FormatError_ProjectMissingId(object project)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("Error_ProjectMissingId", "project"), project);
+        }
+
+        /// <summary>
         /// The project file '{path}' does not exist.
         /// </summary>
         internal static string Error_ProjectPath_NotFound

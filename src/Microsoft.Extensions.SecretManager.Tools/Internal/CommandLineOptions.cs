@@ -9,6 +9,7 @@ namespace Microsoft.Extensions.SecretManager.Tools.Internal
 {
     public class CommandLineOptions
     {
+        public string Id { get; set; }
         public bool IsVerbose { get; set; }
         public bool IsHelp { get; set; }
         public string Project { get; set; }
@@ -33,6 +34,11 @@ namespace Microsoft.Extensions.SecretManager.Tools.Internal
             var optionProject = app.Option("-p|--project <PROJECT>", "Path to project, default is current directory",
                 CommandOptionType.SingleValue, inherited: true);
 
+            // the escape hatch if project evaluation fails, or if users want to alter a secret store other than the one
+            // in the current project
+            var optionId = app.Option("--id", "The user secret id to use.",
+                CommandOptionType.SingleValue, inherited: true);
+
             var options = new CommandLineOptions();
             app.Command("set", c => SetCommand.Configure(c, options));
             app.Command("remove", c => RemoveCommand.Configure(c, options));
@@ -48,6 +54,7 @@ namespace Microsoft.Extensions.SecretManager.Tools.Internal
                 return null;
             }
 
+            options.Id = optionId.Value();
             options.IsHelp = app.IsShowingInformation;
             options.IsVerbose = optionVerbose.HasValue();
             options.Project = optionProject.Value();
