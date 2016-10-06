@@ -9,6 +9,7 @@ using Microsoft.DotNet.Cli.Utils;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.SecretManager.Tools.Internal;
 using Microsoft.Extensions.ProjectModel;
+using Microsoft.Build.Exceptions;
 
 namespace Microsoft.Extensions.SecretManager.Tools
 {
@@ -99,6 +100,11 @@ namespace Microsoft.Extensions.SecretManager.Tools
             {
                 if (exception is GracefulException)
                 {
+                    if (exception.InnerException != null)
+                    {
+                        Logger.LogInformation(exception.InnerException.Message);
+                    }
+
                     Logger.LogError(exception.Message);
                 }
                 else
@@ -139,21 +145,29 @@ namespace Microsoft.Extensions.SecretManager.Tools
             return 0;
         }
 
-        private string ResolveIdFromProject(string projectPath)
+        internal string ResolveIdFromProject(string projectPath)
         {
             var finder = new GracefulProjectFinder(_workingDirectory);
             var projectFile = finder.FindMsBuildProject(projectPath);
 
             Logger.LogDebug(Resources.Message_Project_File_Path, projectFile);
 
-            var project = new MsBuildProjectContextBuilder()
-                .UseMsBuild(_msBuildContext)
-                .AsDesignTimeBuild()
-                .WithBuildTargets(Array.Empty<string>())
-                .WithProjectFile(projectFile)
-                .Build();
+            try
+            {
+                var project = new MsBuildProjectContextBuilder()
+                    .UseMsBuild(_msBuildContext)
+                    .AsDesignTimeBuild()
+                    .WithBuildTargets(Array.Empty<string>())
+                    .WithProjectFile(projectFile)
+                    .WithTargetFramework("") // TFM doesn't matter
+                    .Build();
 
-            return project.GetUserSecretsId();
+                return project.GetUserSecretsId();
+            }
+            catch (InvalidProjectFileException ex)
+            {
+                throw new GracefulException(Resources.FormatError_ProjectFailedToLoad(projectFile), ex);
+            }
         }
     }
 }

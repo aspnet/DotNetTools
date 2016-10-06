@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using Microsoft.Build.Exceptions;
 using Microsoft.DotNet.Cli.Utils;
 using Microsoft.Extensions.Configuration.UserSecrets;
 using Microsoft.Extensions.Configuration.UserSecrets.Tests;
@@ -34,6 +35,29 @@ namespace Microsoft.Extensions.SecretManager.Tools.Tests
             };
         }
 
+        [Theory]
+        [InlineData(null)]
+        [InlineData("")]
+        public void Error_MissingId(string id)
+        {
+            var project = Path.Combine(_fixture.CreateProject(id), "TestProject.csproj");
+            var secretManager = CreateProgram();
+
+            var ex = Assert.Throws<GracefulException>(() => secretManager.RunInternal("list", "-p", project));
+            Assert.Equal(Resources.FormatError_ProjectMissingId(project), ex.Message);
+        }
+
+        [Fact]
+        public void Error_InvalidProjectFormat()
+        {
+            var project = Path.Combine(_fixture.CreateProject("<"), "TestProject.csproj");
+            var secretManager = CreateProgram();
+
+            var ex = Assert.Throws<GracefulException>(() => secretManager.RunInternal("list", "-p", project));
+            Assert.Equal(Resources.FormatError_ProjectFailedToLoad(project), ex.Message);
+            Assert.IsType<InvalidProjectFileException>(ex.InnerException);
+        }
+
         [Fact]
         public void Error_Project_DoesNotExist()
         {
@@ -41,7 +65,6 @@ namespace Microsoft.Extensions.SecretManager.Tools.Tests
             var secretManager = CreateProgram();
 
             var ex = Assert.Throws<GracefulException>(() => secretManager.RunInternal("list", "--project", projectPath));
-
             Assert.Equal(Resources.FormatError_ProjectPath_NotFound(projectPath), ex.Message);
         }
 

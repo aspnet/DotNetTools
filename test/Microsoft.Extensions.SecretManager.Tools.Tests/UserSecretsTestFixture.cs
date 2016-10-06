@@ -39,7 +39,7 @@ namespace Microsoft.Extensions.Configuration.UserSecrets.Tests
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFrameworks>netcoreapp1.0</TargetFrameworks>
-    <UserSecretsId>{0}</UserSecretsId>
+    {0}
   </PropertyGroup>
 
   <ItemGroup>
@@ -58,14 +58,29 @@ namespace Microsoft.Extensions.Configuration.UserSecrets.Tests
 
         public string GetTempSecretProject(out string userSecretsId)
         {
-            var projectPath = Directory.CreateDirectory(Path.Combine(Path.GetTempPath(), "usersecretstest", Guid.NewGuid().ToString()));
             userSecretsId = Guid.NewGuid().ToString();
+            return CreateProject(userSecretsId);
+        }
+
+        public string CreateProject(string userSecretsId)
+        {
+            var projectPath = Directory.CreateDirectory(Path.Combine(Path.GetTempPath(), "usersecretstest", Guid.NewGuid().ToString()));
+            var prop = string.IsNullOrEmpty(userSecretsId)
+                ? string.Empty
+                : $"<UserSecretsId>{userSecretsId}</UserSecretsId>";
+
             File.WriteAllText(
                 Path.Combine(projectPath.FullName, "TestProject.csproj"),
-                string.Format(ProjectTemplate, userSecretsId));
+                string.Format(ProjectTemplate, prop));
 
             var id = userSecretsId;
-            _disposables.Push(() => TryDelete(Path.GetDirectoryName(PathHelper.GetSecretsPathFromSecretsId(id))));
+            _disposables.Push(() =>
+            {
+                if (!string.IsNullOrEmpty(id))
+                {
+                    TryDelete(Path.GetDirectoryName(PathHelper.GetSecretsPathFromSecretsId(id)));
+                }
+            });
             _disposables.Push(() => TryDelete(projectPath.FullName));
 
             return projectPath.FullName;
