@@ -111,6 +111,22 @@ namespace Microsoft.Extensions.ProjectModel
             return new MsBuildProjectContext(name, _configuration, projectInstance);
         }
 
+        public IEnumerable<MsBuildProjectContext> BuildAllConfigurations()
+        {
+            var projectCollection = CreateProjectCollection();
+            var project = CreateProject(_fileInfo, _configuration, _globalProperties, projectCollection);
+
+            var frameworks = project.GetProperty("TargetFrameworks")?.EvaluatedValue;
+            if (!string.IsNullOrEmpty(frameworks))
+            {
+                foreach(var f in frameworks.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries))
+                {
+                    WithTargetFramework(f);
+                    yield return Build();
+                }
+            }
+        }
+
         protected virtual void Initialize()
         {
             WithBuildTargets(new[] { "ResolveReferences" });
