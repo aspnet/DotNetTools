@@ -32,7 +32,7 @@ namespace Microsoft.Extensions.ProjectModel
             _files.Dispose();
         }
 
-        [Fact]
+        [Fact(Skip = SkipReason)]
         public void BuildsAllTargetFrameworks()
         {
 
@@ -117,14 +117,13 @@ namespace Microsoft.Extensions.ProjectModel
             Assert.Equal(0, result.ExitCode);
 
             var expectedCompileItems = new[] { "One.cs", "Two.cs" }.Select(p => Path.Combine(_files.Root, p)).ToArray();
-            var builder = new MsBuildProjectContextBuilder()
+
+            var context = new MsBuildProjectContextBuilder()
                 .AsDesignTimeBuild()
                 .UseMsBuild(testContext)
-                .WithTargetFramework(FrameworkConstants.CommonFrameworks.NetCoreApp10)
                 .WithConfiguration("Debug")
-                .WithProjectFile(_files.GetFileInfo("test.csproj"));
-
-            var context = builder.Build();
+                .WithProjectFile(_files.GetFileInfo("test.csproj"))
+                .Build();
 
             Assert.False(_files.GetFileInfo("bin").Exists);
             Assert.False(_files.GetFileInfo("obj").Exists);
