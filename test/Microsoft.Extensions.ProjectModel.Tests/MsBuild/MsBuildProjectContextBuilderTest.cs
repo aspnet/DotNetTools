@@ -46,7 +46,7 @@ namespace Microsoft.Extensions.ProjectModel
             var contexts = new MsBuildProjectContextBuilder()
                 .WithBuildTargets(Array.Empty<string>())
                 .WithProjectFile(_files.GetFileInfo("test.proj"))
-                .BuildAllConfigurations()
+                .BuildAllTargetFrameworks()
                 .ToList();
 
             Assert.Collection(contexts,

@@ -111,7 +111,7 @@ namespace Microsoft.Extensions.ProjectModel
             return new MsBuildProjectContext(name, _configuration, projectInstance);
         }
 
-        public IEnumerable<MsBuildProjectContext> BuildAllConfigurations()
+        public IEnumerable<MsBuildProjectContext> BuildAllTargetFrameworks()
         {
             var projectCollection = CreateProjectCollection();
             var project = CreateProject(_fileInfo, _configuration, _globalProperties, projectCollection);
