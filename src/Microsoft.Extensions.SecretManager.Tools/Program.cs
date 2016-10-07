@@ -2,15 +2,14 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
+using Microsoft.DotNet.Cli.Utils;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.FileProviders;
-using Microsoft.Extensions.FileProviders.Physical;
 using Microsoft.Extensions.SecretManager.Tools.Internal;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace Microsoft.Extensions.SecretManager.Tools
 {
@@ -21,9 +20,13 @@ namespace Microsoft.Extensions.SecretManager.Tools
         private readonly TextWriter _consoleOutput;
         private readonly string _workingDirectory;
 
-        public Program()
-            : this(Console.Out, Directory.GetCurrentDirectory())
+        public static int Main(string[] args)
         {
+            HandleDebugFlag(ref args);
+
+            int rc;
+            new Program(Console.Out, Directory.GetCurrentDirectory()).TryRun(args, out rc);
+            return rc;
         }
 
         internal Program(TextWriter consoleOutput, string workingDirectory)
@@ -65,15 +68,6 @@ namespace Microsoft.Extensions.SecretManager.Tools
             }
         }
 
-        public static int Main(string[] args)
-        {
-            HandleDebugFlag(ref args);
-
-            int rc;
-            new Program().TryRun(args, out rc);
-            return rc;
-        }
-
         [Conditional("DEBUG")]
         private static void HandleDebugFlag(ref string[] args)
         {
@@ -103,6 +97,11 @@ namespace Microsoft.Extensions.SecretManager.Tools
             {
                 if (exception is GracefulException)
                 {
+                    if (exception.InnerException != null)
+                    {
+                        Logger.LogInformation(exception.InnerException.Message);
+                    }
+
                     Logger.LogError(exception.Message);
                 }
                 else
@@ -134,59 +133,22 @@ namespace Microsoft.Extensions.SecretManager.Tools
                 CommandOutputProvider.LogLevel = LogLevel.Debug;
             }
 
-            var userSecretsId = ResolveUserSecretsId(options);
+            var userSecretsId = ResolveId(options);
             var store = new SecretsStore(userSecretsId, Logger);
             options.Command.Execute(store, Logger);
             return 0;
         }
 
-        private string ResolveUserSecretsId(CommandLineOptions options)
+        internal string ResolveId(CommandLineOptions options)
         {
-            var projectPath = options.Project ?? _workingDirectory;
-
-            if (!Path.IsPathRooted(projectPath))
+            if (!string.IsNullOrEmpty(options.Id))
             {
-                projectPath = Path.Combine(_workingDirectory, projectPath);
+                return options.Id;
             }
 
-            if (!projectPath.EndsWith("project.json", StringComparison.OrdinalIgnoreCase))
+            using (var resolver = new ProjectIdResolver(Logger, _workingDirectory))
             {
-                projectPath = Path.Combine(projectPath, "project.json");
-            }
-
-            var fileInfo = new PhysicalFileInfo(new FileInfo(projectPath));
-
-            if (!fileInfo.Exists)
-            {
-                throw new GracefulException(Resources.FormatError_ProjectPath_NotFound(projectPath));
-            }
-
-            Logger.LogDebug(Resources.Message_Project_File_Path, fileInfo.PhysicalPath);
-            return ReadUserSecretsId(fileInfo);
-        }
-
-        // TODO can use runtime API when upgrading to 1.1
-        private string ReadUserSecretsId(IFileInfo fileInfo)
-        {
-            if (fileInfo == null || !fileInfo.Exists)
-            {
-                throw new GracefulException($"Could not find file '{fileInfo.PhysicalPath}'");
-            }
-
-            using (var stream = fileInfo.CreateReadStream())
-            using (var streamReader = new StreamReader(stream))
-            using (var jsonReader = new JsonTextReader(streamReader))
-            {
-                var obj = JObject.Load(jsonReader);
-
-                var userSecretsId = obj.Value<string>("userSecretsId");
-
-                if (string.IsNullOrEmpty(userSecretsId))
-                {
-                    throw new GracefulException($"Could not find 'userSecretsId' in json file '{fileInfo.PhysicalPath}'");
-                }
-
-                return userSecretsId;
+                return resolver.Resolve(options.Project, options.Configuration);
             }
         }
     }
