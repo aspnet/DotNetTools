@@ -5,12 +5,11 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using Microsoft.DotNet.Cli.Utils;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.FileProviders;
-using Microsoft.Extensions.FileProviders.Physical;
 using Microsoft.Extensions.SecretManager.Tools.Internal;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+using Microsoft.Extensions.ProjectModel;
+using Microsoft.Build.Exceptions;
 
 namespace Microsoft.Extensions.SecretManager.Tools
 {
@@ -20,16 +19,23 @@ namespace Microsoft.Extensions.SecretManager.Tools
         private CommandOutputProvider _loggerProvider;
         private readonly TextWriter _consoleOutput;
         private readonly string _workingDirectory;
+        // TODO this is only for testing. Can remove this when this project builds with CLI preview3
+        private readonly MsBuildContext _msBuildContext;
 
-        public Program()
-            : this(Console.Out, Directory.GetCurrentDirectory())
+        public static int Main(string[] args)
         {
+            HandleDebugFlag(ref args);
+
+            int rc;
+            new Program(Console.Out, Directory.GetCurrentDirectory(), MsBuildContext.FromCurrentDotNetSdk()).TryRun(args, out rc);
+            return rc;
         }
 
-        internal Program(TextWriter consoleOutput, string workingDirectory)
+        internal Program(TextWriter consoleOutput, string workingDirectory, MsBuildContext msbuildContext)
         {
             _consoleOutput = consoleOutput;
             _workingDirectory = workingDirectory;
+            _msBuildContext = msbuildContext;
 
             var loggerFactory = new LoggerFactory();
             CommandOutputProvider = new CommandOutputProvider();
@@ -65,15 +71,6 @@ namespace Microsoft.Extensions.SecretManager.Tools
             }
         }
 
-        public static int Main(string[] args)
-        {
-            HandleDebugFlag(ref args);
-
-            int rc;
-            new Program().TryRun(args, out rc);
-            return rc;
-        }
-
         [Conditional("DEBUG")]
         private static void HandleDebugFlag(ref string[] args)
         {
@@ -103,6 +100,11 @@ namespace Microsoft.Extensions.SecretManager.Tools
             {
                 if (exception is GracefulException)
                 {
+                    if (exception.InnerException != null)
+                    {
+                        Logger.LogInformation(exception.InnerException.Message);
+                    }
+
                     Logger.LogError(exception.Message);
                 }
                 else
@@ -134,59 +136,37 @@ namespace Microsoft.Extensions.SecretManager.Tools
                 CommandOutputProvider.LogLevel = LogLevel.Debug;
             }
 
-            var userSecretsId = ResolveUserSecretsId(options);
+            var userSecretsId = string.IsNullOrEmpty(options.Id)
+                    ? ResolveIdFromProject(options.Project)
+                    : options.Id;
+
             var store = new SecretsStore(userSecretsId, Logger);
             options.Command.Execute(store, Logger);
             return 0;
         }
 
-        private string ResolveUserSecretsId(CommandLineOptions options)
+        internal string ResolveIdFromProject(string projectPath)
         {
-            var projectPath = options.Project ?? _workingDirectory;
+            var finder = new GracefulProjectFinder(_workingDirectory);
+            var projectFile = finder.FindMsBuildProject(projectPath);
 
-            if (!Path.IsPathRooted(projectPath))
+            Logger.LogDebug(Resources.Message_Project_File_Path, projectFile);
+
+            try
             {
-                projectPath = Path.Combine(_workingDirectory, projectPath);
+                var project = new MsBuildProjectContextBuilder()
+                    .UseMsBuild(_msBuildContext)
+                    .AsDesignTimeBuild()
+                    .WithBuildTargets(Array.Empty<string>())
+                    .WithProjectFile(projectFile)
+                    .WithTargetFramework("") // TFM doesn't matter
+                    .Build();
+
+                return project.GetUserSecretsId();
             }
-
-            if (!projectPath.EndsWith("project.json", StringComparison.OrdinalIgnoreCase))
+            catch (InvalidProjectFileException ex)
             {
-                projectPath = Path.Combine(projectPath, "project.json");
-            }
-
-            var fileInfo = new PhysicalFileInfo(new FileInfo(projectPath));
-
-            if (!fileInfo.Exists)
-            {
-                throw new GracefulException(Resources.FormatError_ProjectPath_NotFound(projectPath));
-            }
-
-            Logger.LogDebug(Resources.Message_Project_File_Path, fileInfo.PhysicalPath);
-            return ReadUserSecretsId(fileInfo);
-        }
-
-        // TODO can use runtime API when upgrading to 1.1
-        private string ReadUserSecretsId(IFileInfo fileInfo)
-        {
-            if (fileInfo == null || !fileInfo.Exists)
-            {
-                throw new GracefulException($"Could not find file '{fileInfo.PhysicalPath}'");
-            }
-
-            using (var stream = fileInfo.CreateReadStream())
-            using (var streamReader = new StreamReader(stream))
-            using (var jsonReader = new JsonTextReader(streamReader))
-            {
-                var obj = JObject.Load(jsonReader);
-
-                var userSecretsId = obj.Value<string>("userSecretsId");
-
-                if (string.IsNullOrEmpty(userSecretsId))
-                {
-                    throw new GracefulException($"Could not find 'userSecretsId' in json file '{fileInfo.PhysicalPath}'");
-                }
-
-                return userSecretsId;
+                throw new GracefulException(Resources.FormatError_ProjectFailedToLoad(projectFile), ex);
             }
         }
     }

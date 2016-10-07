@@ -19,15 +19,20 @@
     ]
   },
   "dependencies": {
+    "Microsoft.Build.Runtime": "15.1.298-preview5",
+    "Microsoft.DotNet.Cli.Utils": "1.0.0-*",
     "Microsoft.Extensions.CommandLineUtils": "1.1.0-*",
     "Microsoft.Extensions.Configuration.UserSecrets": "1.1.0-*",
     "Microsoft.Extensions.Logging": "1.1.0-*",
+    "Microsoft.Extensions.ProjectModel.Sources": {
+      "version": "1.0.0-*",
+      "type": "build"
+    },
     "Microsoft.NETCore.App": {
       "version": "1.1.0-*",
       "type": "platform"
     },
-    "Newtonsoft.Json": "9.0.1",
-    "System.Runtime.Serialization.Primitives": "4.3.0-*"
+    "NuGet.Versioning": "3.5.0-*"
   },
   "frameworks": {
     "netcoreapp1.0": {}

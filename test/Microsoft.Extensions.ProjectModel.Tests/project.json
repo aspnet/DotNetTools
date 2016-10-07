@@ -13,8 +13,8 @@
     "Microsoft.Build.Runtime": "15.1.298-preview5",
     "Microsoft.Extensions.FileProviders.Physical": "1.1.0-*",
     "Microsoft.Extensions.ProjectModel.Sources": {
-        "type": "build",
-        "version": "1.0.0-*"
+      "type": "build",
+      "version": "1.0.0-*"
     },
     "dotnet-test-xunit": "2.2.0-*",
     "xunit": "2.2.0-*"
