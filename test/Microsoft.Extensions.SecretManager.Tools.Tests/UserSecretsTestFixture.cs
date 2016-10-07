@@ -76,10 +76,13 @@ namespace Microsoft.Extensions.Configuration.UserSecrets.Tests
             var id = userSecretsId;
             _disposables.Push(() =>
             {
-                if (!string.IsNullOrEmpty(id))
+                try
                 {
-                    TryDelete(Path.GetDirectoryName(PathHelper.GetSecretsPathFromSecretsId(id)));
+                    // may throw if id is bad
+                    var secretsDir = Path.GetDirectoryName(PathHelper.GetSecretsPathFromSecretsId(id));
+                    TryDelete(secretsDir);
                 }
+                catch { }
             });
             _disposables.Push(() => TryDelete(projectPath.FullName));
 

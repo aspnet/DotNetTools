@@ -136,9 +136,9 @@ namespace Microsoft.Extensions.SecretManager.Tools
                 CommandOutputProvider.LogLevel = LogLevel.Debug;
             }
 
-            var userSecretsId = !string.IsNullOrEmpty(options.Id)
-                    ? options.Id
-                    : ResolveIdFromProject(options.Project);
+            var userSecretsId = string.IsNullOrEmpty(options.Id)
+                    ? ResolveIdFromProject(options.Project)
+                    : options.Id;
 
             var store = new SecretsStore(userSecretsId, Logger);
             options.Command.Execute(store, Logger);
