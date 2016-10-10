@@ -54,7 +54,7 @@ namespace Microsoft.Extensions.ProjectModel
         public string Config => AssemblyFullPath + ".config";
         public string DepsJson => Path.Combine(TargetDirectory, Path.GetFileNameWithoutExtension(AssemblyFullPath) + ".deps.json");
         public string RuntimeConfigJson => Path.Combine(TargetDirectory, Path.GetFileNameWithoutExtension(AssemblyFullPath) + ".runtimeconfig.json");
-
+        public string PackageLockFile => Path.Combine(Path.GetDirectoryName(ProjectFullPath), "obj", "project.assets.json");
         public string PackagesDirectory => FindProperty("NuGetPackageRoot");
         public string AssemblyFullPath => FindProperty("TargetPath");
         public string Platform => FindProperty("Platform");
