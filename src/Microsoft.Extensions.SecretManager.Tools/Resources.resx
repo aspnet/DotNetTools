@@ -117,14 +117,23 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="Common_StringNullOrEmpty" xml:space="preserve">
+    <value>Value cannot be null or an empty string.</value>
+  </data>
   <data name="Error_Command_Failed" xml:space="preserve">
     <value>Command failed : {message}</value>
   </data>
   <data name="Error_Missing_Secret" xml:space="preserve">
     <value>Cannot find '{key}' in the secret store.</value>
   </data>
+  <data name="Error_MultipleProjectsFound" xml:space="preserve">
+    <value>Multiple MSBuild project files found in '{projectPath}'. Specify which to use with the --project option.</value>
+  </data>
   <data name="Error_No_Secrets_Found" xml:space="preserve">
     <value>No secrets configured for this application.</value>
+  </data>
+  <data name="Error_NoProjectsFound" xml:space="preserve">
+    <value>Could not find a MSBuild project file in '{projectPath}'. Specify which project to use with the --project option.</value>
   </data>
   <data name="Error_ProjectMissingId" xml:space="preserve">
     <value>Could not find the global property 'UserSecretsId' in MSBuild project '{project}'. Ensure this property is set in the project or use the '--id' command line option.</value>

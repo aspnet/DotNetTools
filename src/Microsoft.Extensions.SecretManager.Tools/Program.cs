@@ -2,14 +2,14 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using Microsoft.DotNet.Cli.Utils;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.SecretManager.Tools.Internal;
-using Microsoft.Extensions.ProjectModel;
-using Microsoft.Build.Exceptions;
 
 namespace Microsoft.Extensions.SecretManager.Tools
 {
@@ -19,23 +19,20 @@ namespace Microsoft.Extensions.SecretManager.Tools
         private CommandOutputProvider _loggerProvider;
         private readonly TextWriter _consoleOutput;
         private readonly string _workingDirectory;
-        // TODO this is only for testing. Can remove this when this project builds with CLI preview3
-        private readonly MsBuildContext _msBuildContext;
 
         public static int Main(string[] args)
         {
             HandleDebugFlag(ref args);
 
             int rc;
-            new Program(Console.Out, Directory.GetCurrentDirectory(), MsBuildContext.FromCurrentDotNetSdk()).TryRun(args, out rc);
+            new Program(Console.Out, Directory.GetCurrentDirectory()).TryRun(args, out rc);
             return rc;
         }
 
-        internal Program(TextWriter consoleOutput, string workingDirectory, MsBuildContext msbuildContext)
+        internal Program(TextWriter consoleOutput, string workingDirectory)
         {
             _consoleOutput = consoleOutput;
             _workingDirectory = workingDirectory;
-            _msBuildContext = msbuildContext;
 
             var loggerFactory = new LoggerFactory();
             CommandOutputProvider = new CommandOutputProvider();
@@ -136,37 +133,22 @@ namespace Microsoft.Extensions.SecretManager.Tools
                 CommandOutputProvider.LogLevel = LogLevel.Debug;
             }
 
-            var userSecretsId = string.IsNullOrEmpty(options.Id)
-                    ? ResolveIdFromProject(options.Project)
-                    : options.Id;
-
+            var userSecretsId = ResolveId(options);
             var store = new SecretsStore(userSecretsId, Logger);
             options.Command.Execute(store, Logger);
             return 0;
         }
 
-        internal string ResolveIdFromProject(string projectPath)
+        internal string ResolveId(CommandLineOptions options)
         {
-            var finder = new GracefulProjectFinder(_workingDirectory);
-            var projectFile = finder.FindMsBuildProject(projectPath);
-
-            Logger.LogDebug(Resources.Message_Project_File_Path, projectFile);
-
-            try
+            if (!string.IsNullOrEmpty(options.Id))
             {
-                var project = new MsBuildProjectContextBuilder()
-                    .UseMsBuild(_msBuildContext)
-                    .AsDesignTimeBuild()
-                    .WithBuildTargets(Array.Empty<string>())
-                    .WithProjectFile(projectFile)
-                    .WithTargetFramework("") // TFM doesn't matter
-                    .Build();
-
-                return project.GetUserSecretsId();
+                return options.Id;
             }
-            catch (InvalidProjectFileException ex)
+
+            using (var resolver = new ProjectIdResolver(Logger, _workingDirectory))
             {
-                throw new GracefulException(Resources.FormatError_ProjectFailedToLoad(projectFile), ex);
+                return resolver.Resolve(options.Project, options.Configuration);
             }
         }
     }

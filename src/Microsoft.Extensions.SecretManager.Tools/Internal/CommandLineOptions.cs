@@ -3,6 +3,7 @@
 
 using System.IO;
 using System.Reflection;
+using Microsoft.DotNet.Cli.Utils;
 using Microsoft.Extensions.CommandLineUtils;
 
 namespace Microsoft.Extensions.SecretManager.Tools.Internal
@@ -13,6 +14,7 @@ namespace Microsoft.Extensions.SecretManager.Tools.Internal
         public bool IsVerbose { get; set; }
         public bool IsHelp { get; set; }
         public string Project { get; set; }
+        public string Configuration { get; set; }
         internal ICommand Command { get; set; }
 
         public static CommandLineOptions Parse(string[] args, TextWriter output)
@@ -32,6 +34,9 @@ namespace Microsoft.Extensions.SecretManager.Tools.Internal
                 CommandOptionType.NoValue, inherited: true);
 
             var optionProject = app.Option("-p|--project <PROJECT>", "Path to project, default is current directory",
+                CommandOptionType.SingleValue, inherited: true);
+
+            var optionConfig = app.Option("-c|--configuration <CONFIGURATION>", $"The project configuration to use. Defaults to {Constants.DefaultConfiguration}",
                 CommandOptionType.SingleValue, inherited: true);
 
             // the escape hatch if project evaluation fails, or if users want to alter a secret store other than the one
@@ -58,6 +63,7 @@ namespace Microsoft.Extensions.SecretManager.Tools.Internal
             options.IsHelp = app.IsShowingInformation;
             options.IsVerbose = optionVerbose.HasValue();
             options.Project = optionProject.Value();
+            options.Configuration = optionConfig.Value();
 
             return options;
         }

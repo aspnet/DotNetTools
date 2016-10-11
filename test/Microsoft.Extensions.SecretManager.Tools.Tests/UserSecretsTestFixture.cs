@@ -4,11 +4,10 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using Microsoft.Extensions.ProjectModel.Tests;
 
 namespace Microsoft.Extensions.Configuration.UserSecrets.Tests
 {
-    public class UserSecretsTestFixture : MsBuildFixture, IDisposable
+    public class UserSecretsTestFixture : IDisposable
     {
         private Stack<Action> _disposables = new Stack<Action>();
 

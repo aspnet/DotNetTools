@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using Microsoft.Build.Exceptions;
 using Microsoft.DotNet.Cli.Utils;
 using Microsoft.Extensions.Configuration.UserSecrets;
 using Microsoft.Extensions.Configuration.UserSecrets.Tests;
@@ -29,7 +28,7 @@ namespace Microsoft.Extensions.SecretManager.Tools.Tests
 
         private Program CreateProgram()
         {
-            return new Program(Console.Out, Directory.GetCurrentDirectory(), _fixture.GetMsBuildContext())
+            return new Program(Console.Out, Directory.GetCurrentDirectory())
             {
                 Logger = _logger
             };
@@ -55,7 +54,6 @@ namespace Microsoft.Extensions.SecretManager.Tools.Tests
 
             var ex = Assert.Throws<GracefulException>(() => secretManager.RunInternal("list", "-p", project));
             Assert.Equal(Resources.FormatError_ProjectFailedToLoad(project), ex.Message);
-            Assert.IsType<InvalidProjectFileException>(ex.InnerException);
         }
 
         [Fact]
@@ -74,7 +72,7 @@ namespace Microsoft.Extensions.SecretManager.Tools.Tests
             var projectPath = _fixture.GetTempSecretProject();
             var cwd = Path.Combine(projectPath, "nested1");
             Directory.CreateDirectory(cwd);
-            var secretManager = new Program(Console.Out, cwd, _fixture.GetMsBuildContext()) { Logger = _logger, CommandOutputProvider = _logger.CommandOutputProvider };
+            var secretManager = new Program(Console.Out, cwd) { Logger = _logger, CommandOutputProvider = _logger.CommandOutputProvider };
             secretManager.CommandOutputProvider.LogLevel = LogLevel.Debug;
 
             secretManager.RunInternal("list", "-p", ".." + Path.DirectorySeparatorChar, "--verbose");
@@ -99,7 +97,7 @@ namespace Microsoft.Extensions.SecretManager.Tools.Tests
             var dir = fromCurrentDirectory
                 ? projectPath
                 : Path.GetTempPath();
-            var secretManager = new Program(Console.Out, dir, _fixture.GetMsBuildContext()) { Logger = _logger };
+            var secretManager = new Program(Console.Out, dir) { Logger = _logger };
 
             foreach (var secret in secrets)
             {
@@ -278,7 +276,7 @@ namespace Microsoft.Extensions.SecretManager.Tools.Tests
                 ? projectPath
                 : Path.GetTempPath();
 
-            var secretManager = new Program(Console.Out, dir, _fixture.GetMsBuildContext()) { Logger = _logger };
+            var secretManager = new Program(Console.Out, dir) { Logger = _logger };
 
             var secrets = new KeyValuePair<string, string>[]
                         {
