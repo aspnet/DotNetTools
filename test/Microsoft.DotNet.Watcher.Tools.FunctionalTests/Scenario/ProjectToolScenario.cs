@@ -51,12 +51,7 @@ namespace Microsoft.DotNet.Watcher.Tools.FunctionalTests
 
             foreach (var file in Directory.GetFiles(srcFolder, "*", SearchOption.AllDirectories))
             {
-                var dest = file.Replace(srcFolder, destinationFolder);
-                if ("P.json".Equals(Path.GetFileName(file), StringComparison.OrdinalIgnoreCase))
-                {
-                    dest = dest.Replace("P.json", "project.json");
-                }
-                File.Copy(file, dest, true);
+                File.Copy(file, file.Replace(srcFolder, destinationFolder), true);
             }
         }
 
