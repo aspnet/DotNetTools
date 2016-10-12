@@ -7,7 +7,7 @@
             "Microsoft.DotNet.Watcher.Tools": {
                 "exclusions": {
                     "DOC_MISSING": {
-                        "lib/netcoreapp1.0/dotnet-watch.dll": "xmldocs not required for DotnetCliTool packages"
+                        "lib/netcoreapp1.1/dotnet-watch.dll": "xmldocs not required for DotnetCliTool packages"
                     }
                 },
                 "packageTypes": ["DotnetCliTool"]
@@ -15,7 +15,7 @@
             "Microsoft.Extensions.Caching.SqlConfig.Tools": {
                 "exclusions": {
                     "DOC_MISSING": {
-                        "lib/netcoreapp1.0/dotnet-sql-cache.dll": "xmldocs not required for DotnetCliTool packages"
+                        "lib/netcoreapp1.1/dotnet-sql-cache.dll": "xmldocs not required for DotnetCliTool packages"
                     }
                 },
                 "packageTypes": ["DotnetCliTool"]
@@ -23,7 +23,7 @@
             "Microsoft.Extensions.SecretManager.Tools": {
                 "exclusions": {
                     "DOC_MISSING": {
-                        "lib/netcoreapp1.0/dotnet-user-secrets.dll": "xmldocs not required for DotnetCliTool packages"
+                        "lib/netcoreapp1.1/dotnet-user-secrets.dll": "xmldocs not required for DotnetCliTool packages"
                     }
                 },
                 "packageTypes": ["DotnetCliTool"]

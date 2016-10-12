@@ -28,7 +28,7 @@ namespace NuGetPackager
 
         public async Task PackAsync(string nuspec, string config, string outputDir)
         {
-            var project = ProjectContext.Create(Path.GetDirectoryName(nuspec), FrameworkConstants.CommonFrameworks.NetCoreApp10);
+            var project = ProjectContext.Create(Path.GetDirectoryName(nuspec), FrameworkConstants.CommonFrameworks.NetCoreApp11);
             var props = "configuration=" + config;
             var idx = 0;
             foreach (var depVersion in GetDependencies(project).OrderBy(p => p.Item1).Select(p => p.Item2))
@@ -36,7 +36,7 @@ namespace NuGetPackager
                 props += $";dep_{++idx}={depVersion}";
             }
 
-            var buildCommand = Command.CreateDotNet("build", 
+            var buildCommand = Command.CreateDotNet("build",
                 new[] { project.ProjectFile.ProjectFilePath, "--configuration", config },
                  configuration: config);
 
@@ -136,7 +136,7 @@ namespace NuGetPackager
             }
 
             Console.WriteLine("log : Downloading nuget.exe 3.5.0-rc1".Bold().Black());
-            
+
             var response = await new HttpClient().GetAsync("https://dist.nuget.org/win-x86-commandline/v3.5.0-rc1/NuGet.exe");
             using (var file = new FileStream(nugetPath, FileMode.CreateNew))
             {
