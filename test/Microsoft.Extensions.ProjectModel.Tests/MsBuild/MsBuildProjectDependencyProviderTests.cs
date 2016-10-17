@@ -14,6 +14,8 @@ namespace Microsoft.Extensions.ProjectModel.MsBuild
 {
     public class MsBuildProjectDependencyProviderTests: IClassFixture<MsBuildFixture>
     {
+        private const string SkipReason = "CI doesn't yet have a new enough version of .NET Core SDK";
+
         private const string NugetConfigTxt = @"
 <configuration>
     <packageSources>
@@ -98,7 +100,7 @@ namespace Microsoft.Extensions.ProjectModel.MsBuild
             _output = output;
         }
 
-        [Fact(Skip = "CI doesn't yet have a new enough version of .NET Core SDK")]
+        [Fact(Skip = SkipReason)]
         public void BuildDependenciesForProject()
         {
             using (var fileProvider = new TemporaryFileProvider())
@@ -152,7 +154,7 @@ namespace Microsoft.Extensions.ProjectModel.MsBuild
                     .FirstOrDefault();
 
                 Assert.NotNull(lib1Dll);
-                Assert.True(File.Exists(lib1Dll.ResolvedPath));
+                Assert.False(File.Exists(lib1Dll.ResolvedPath), $"Design time build. Shouldn't produce a file to {lib1Dll.ResolvedPath}");
 
                 // This reference doesn't resolve so should not be available here.
                 Assert.False(compilationAssemblies.Any(assembly => assembly.Name.Equals("xyz", StringComparison.OrdinalIgnoreCase)));
@@ -165,7 +167,7 @@ namespace Microsoft.Extensions.ProjectModel.MsBuild
 
                 Assert.True(mvcPackage.Dependencies.Any(dependency => dependency.Name.Equals("Microsoft.Extensions.DependencyInjection", StringComparison.OrdinalIgnoreCase)));
 
-                Assert.True(context.ProjectReferences.First().Equals(Path.Combine(fileProvider.Root, "Library1", "Library1.csproj")));
+                Assert.Equal(Path.Combine(fileProvider.Root, "Root", "..", "Library1", "Library1.csproj"), context.ProjectReferences.First());
             }
         }
     }
