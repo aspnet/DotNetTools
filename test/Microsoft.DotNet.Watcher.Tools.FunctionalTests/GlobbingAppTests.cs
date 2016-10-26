@@ -187,13 +187,13 @@ namespace Microsoft.DotNet.Watcher.Tools.FunctionalTests
 
             public GlobbingAppScenario()
             {
-                StatusFile = Path.Combine(_scenario.TempFolder, "status");
+                StatusFile = Path.Combine(Scenario.TempFolder, "status");
                 StartedFile = StatusFile + ".started";
 
-                _scenario.AddTestProjectFolder(TestAppName);
-                _scenario.Restore();
+                Scenario.AddTestProjectFolder(TestAppName);
+                Scenario.Restore();
 
-                TestAppFolder = Path.Combine(_scenario.WorkFolder, TestAppName);
+                TestAppFolder = Path.Combine(Scenario.WorkFolder, TestAppName);
             }
 
             public void Start()
@@ -201,7 +201,7 @@ namespace Microsoft.DotNet.Watcher.Tools.FunctionalTests
                 // Wait for the process to start
                 using (var wait = new WaitForFileToChange(StartedFile))
                 {
-                    RunDotNetWatch(new[] { "run", StatusFile }, Path.Combine(_scenario.WorkFolder, TestAppName));
+                    RunDotNetWatch(new[] { "run", StatusFile }, Path.Combine(Scenario.WorkFolder, TestAppName));
 
                     wait.Wait(_defaultTimeout,
                         expectedToChange: true,

@@ -1,0 +1,40 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <Import Project="DotNetWatchCommon.targets" Condition="'$(IsCrossTargettingBuild)'!='true'" />
+
+  <Target Name="GenerateWatchList"
+          DependsOnTargets="_CollectWatchProjects;_CollectWatchItems;_CoreCollectWatchItems;_WriteGeneratedWatchList" />
+
+  <Target Name="_CoreCollectWatchItems" Returns="@(Watch)">
+    <ItemGroup>
+      <Watch Include="@(Compile->'%(FullPath)')" Condition="'%(Compile.Watch)' != 'false'" />
+      <Watch Include="@(EmbeddedResource->'%(FullPath)')" Condition="'%(EmbeddedResource.Watch)' != 'false'"/>
+      <Watch Include="$(MSBuildProjectFullPath)" />
+    </ItemGroup>
+  </Target>
+
+  <Target Name="_CollectWatchProjects"
+          Returns="@(_DotNetWatchProjects)">
+    <ItemGroup>
+      <_DotNetWatchProjects Include="@(ProjectReference->'%(FullPath)')" Condition="'%(ProjectReference.Watch)' != 'false'">
+      </_DotNetWatchProjects>
+      <_DotNetWatchImportsTargets Include="@(_DotNetWatchProjects->'%(RelativeDir)obj\%(FileName)%(Extension).dotnetwatch.targets')">
+        <TargetsFile>$(_DotNetWatchTargetsFile)</TargetsFile>
+      </_DotNetWatchImportsTargets>
+    </ItemGroup>
+
+     <Copy SourceFiles="@(_DotNetWatchImportsTargets->'%(TargetsFile)')"
+          DestinationFiles="@(_DotNetWatchImportsTargets)"
+          SkipUnchangedFiles="true" />
+
+    <MSBuild
+      Targets="_CollectWatchProjects"
+      Projects="%(_DotNetWatchProjects.FullPath)">
+      <Output TaskParameter="TargetOutputs" ItemName="_DotNetWatchProjects"/>
+    </MSBuild>
+
+    <ItemGroup>
+      <_DotNetWatchProjects Include="$(MSBuildProjectFullPath)"/>
+    </ItemGroup>
+  </Target>
+</Project>

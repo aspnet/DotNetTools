@@ -1,0 +1,35 @@
+<Project
+  xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <Target Name="GenerateWatchList"
+          DependsOnTargets="_CollectWatchProjects;_CollectWatchItems;_WriteGeneratedWatchList"
+          />
+
+  <Target Name="_CoreCollectWatchItems"
+          Returns="@(Watch)">
+    <ItemGroup>
+      <_TargetFramework Include="$(TargetFrameworks)" />
+    </ItemGroup>
+    <MSBuild Projects="$(MSBuildProjectFile)"
+             Condition="'$(TargetFrameworks)' != '' "
+             Targets="_CoreCollectWatchItems"
+             Properties="TargetFramework=%(_TargetFramework.Identity)">
+      <Output ItemName="Watch" TaskParameter="TargetOutputs" />
+    </MSBuild>
+  </Target>
+
+  <Target Name="_CollectWatchProjects" Returns="@(_DotNetWatchProjects)">
+    <ItemGroup>
+      <_TargetFramework Include="$(TargetFrameworks)" />
+    </ItemGroup>
+    <MSBuild Projects="$(MSBuildProjectFile)"
+             Condition="'$(TargetFrameworks)' != '' "
+             Targets="_CollectWatchProjects"
+             Properties="TargetFramework=%(_TargetFramework.Identity)">
+      <Output ItemName="_DotNetWatchProjects" TaskParameter="TargetOutputs" />
+    </MSBuild>
+  </Target>
+
+  <Import Project="DotNetWatchCommon.targets" />
+
+</Project>

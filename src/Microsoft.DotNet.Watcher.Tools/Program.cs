@@ -17,15 +17,18 @@ namespace Microsoft.DotNet.Watcher
         private readonly CancellationToken _cancellationToken;
         private readonly TextWriter _stdout;
         private readonly TextWriter _stderr;
+        private readonly string _workingDir;
 
-        public Program(TextWriter consoleOutput, TextWriter consoleError, CancellationToken cancellationToken)
+        public Program(TextWriter consoleOutput, TextWriter consoleError, string workingDir, CancellationToken cancellationToken)
         {
             Ensure.NotNull(consoleOutput, nameof(consoleOutput));
             Ensure.NotNull(consoleError, nameof(consoleError));
+            Ensure.NotNullOrEmpty(workingDir, nameof(workingDir));
 
             _cancellationToken = cancellationToken;
             _stdout = consoleOutput;
             _stderr = consoleError;
+            _workingDir = workingDir;
         }
 
         public static int Main(string[] args)
@@ -50,7 +53,7 @@ namespace Microsoft.DotNet.Watcher
 
                 try
                 {
-                    return new Program(Console.Out, Console.Error, ctrlCTokenSource.Token)
+                    return new Program(Console.Out, Console.Error, Directory.GetCurrentDirectory(), ctrlCTokenSource.Token)
                         .MainInternalAsync(args)
                         .GetAwaiter()
                         .GetResult();
@@ -92,8 +95,21 @@ namespace Microsoft.DotNet.Watcher
             loggerFactory.AddProvider(commandProvider);
             var logger = loggerFactory.CreateLogger(LoggerName);
 
-            var projectFile = Path.Combine(Directory.GetCurrentDirectory(), ProjectModel.Project.FileName);
-            var projectFileSetFactory = new ProjectJsonFileSetFactory(logger, projectFile);
+            IFileSetFactory fileSetFactory;
+            var projectFinder = new MsBuildProjectFinder(_workingDir);
+            string projectFile;
+            // TODO multiple projects should be easy enough to add here
+            if (projectFinder.TryFindMsBuildProject(options.Project, out projectFile))
+            {
+                fileSetFactory = new MsBuildFileSetFactory(logger, projectFile);
+            }
+            else
+            {
+                // TODO drop project.json support
+                projectFile = Path.Combine(_workingDir, ProjectModel.Project.FileName);
+                fileSetFactory = new ProjectJsonFileSetFactory(logger, projectFile);
+            }
+
             var processInfo = new ProcessSpec
             {
                 Executable = new Muxer().MuxerPath,
@@ -102,7 +118,7 @@ namespace Microsoft.DotNet.Watcher
             };
 
             await new DotNetWatcher(logger)
-                    .WatchAsync(processInfo, projectFileSetFactory, _cancellationToken);
+                    .WatchAsync(processInfo, fileSetFactory, _cancellationToken);
 
             return 0;
         }
