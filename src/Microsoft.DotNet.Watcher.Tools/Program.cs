@@ -95,20 +95,11 @@ namespace Microsoft.DotNet.Watcher
             loggerFactory.AddProvider(commandProvider);
             var logger = loggerFactory.CreateLogger(LoggerName);
 
-            IFileSetFactory fileSetFactory;
             var projectFinder = new MsBuildProjectFinder(_workingDir);
-            string projectFile;
+
             // TODO multiple projects should be easy enough to add here
-            if (projectFinder.TryFindMsBuildProject(options.Project, out projectFile))
-            {
-                fileSetFactory = new MsBuildFileSetFactory(logger, projectFile);
-            }
-            else
-            {
-                // TODO drop project.json support
-                projectFile = Path.Combine(_workingDir, ProjectModel.Project.FileName);
-                fileSetFactory = new ProjectJsonFileSetFactory(logger, projectFile);
-            }
+            var projectFile = projectFinder.FindMsBuildProject(options.Project);
+            var fileSetFactory = new MsBuildFileSetFactory(logger, projectFile);
 
             var processInfo = new ProcessSpec
             {
