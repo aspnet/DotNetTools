@@ -16,7 +16,7 @@ namespace Microsoft.DotNet.Watcher.Tools.FunctionalTests
         private static readonly TimeSpan _defaultTimeout = TimeSpan.FromSeconds(30);
         private readonly ITestOutputHelper _logger;
 
-        public NoDepsAppTests (ITestOutputHelper logger)
+        public NoDepsAppTests(ITestOutputHelper logger)
         {
             _logger = logger;
         }
@@ -108,8 +108,8 @@ namespace Microsoft.DotNet.Watcher.Tools.FunctionalTests
         {
             private const string TestAppName = "NoDepsApp";
 
-            public NoDepsAppScenario(ITestOutputHelper _logger)
-                : base(_logger)
+            public NoDepsAppScenario(ITestOutputHelper logger)
+                : base(logger)
             {
                 StatusFile = Path.Combine(Scenario.TempFolder, "status");
                 StartedFile = StatusFile + ".started";
