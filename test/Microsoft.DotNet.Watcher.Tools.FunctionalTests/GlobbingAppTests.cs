@@ -94,7 +94,7 @@ namespace Microsoft.DotNet.Watcher.Tools.FunctionalTests
         }
 
         // Delete an entire folder
-        [Fact(Skip = "Blocking build")]
+        [Fact]
         public void DeleteSourceFolder()
         {
             using (var scenario = new GlobbingAppScenario(_logger))

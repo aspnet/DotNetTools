@@ -255,26 +255,23 @@ namespace Microsoft.DotNetWatcher.Tools.Tests
 
             graph.Find("A").WithProjectReference(graph.Find("W"), watch: false);
 
-            _tempDir.Create();
             var output = new OutputSink();
-
             var filesetFactory = new MsBuildFileSetFactory(_logger, graph.GetOrCreate("A").Path, output)
             {
+                // enables capturing markers to know which projects have been visited
                 BuildFlags = { "/p:_DotNetWatchTraceOutput=true" }
             };
 
-            var createTask = filesetFactory.CreateAsync(CancellationToken.None);
-            var finished = await Task.WhenAny(createTask, Task.Delay(TimeSpan.FromSeconds(10)));
-            _logger.LogInformation(output.Current.GetAllLines("Sink output: "));
+            var fileset = await GetFileSet(filesetFactory);
 
-            Assert.Same(createTask, finished);
+            _logger.LogInformation(output.Current.GetAllLines("Sink output: "));
 
             var includedProjects = new[] { "A", "B", "C", "D", "E", "F", "G" };
             AssertEx.EqualFileList(
                 _tempDir.Root,
                 includedProjects
                     .Select(p => $"{p}/{p}.csproj"),
-                createTask.Result
+                fileset
             );
 
             // ensure unreachable projects exist but where not included
@@ -298,11 +295,11 @@ namespace Microsoft.DotNetWatcher.Tools.Tests
             );
         }
 
-        private async Task<IFileSet> GetFileSet(TemporaryCSharpProject target)
+        private Task<IFileSet> GetFileSet(TemporaryCSharpProject target)
+            => GetFileSet(new MsBuildFileSetFactory(_logger, target.Path));
+        private async Task<IFileSet> GetFileSet(MsBuildFileSetFactory filesetFactory)
         {
             _tempDir.Create();
-
-            var filesetFactory = new MsBuildFileSetFactory(_logger, target.Path);
             var createTask = filesetFactory.CreateAsync(CancellationToken.None);
             var finished = await Task.WhenAny(createTask, Task.Delay(TimeSpan.FromSeconds(10)));
 
