@@ -22,16 +22,34 @@ namespace Microsoft.DotNet.Watcher.Internal
         private readonly ILogger _logger;
         private readonly string _projectFile;
         private readonly string _watchTargetsDir;
+        private readonly OutputSink _outputSink;
 
         public MsBuildFileSetFactory(ILogger logger, string projectFile)
+            : this(logger, projectFile, new OutputSink())
+        {
+        }
+
+        // output sink is for testing
+        internal MsBuildFileSetFactory(ILogger logger, string projectFile, OutputSink outputSink)
         {
             Ensure.NotNull(logger, nameof(logger));
             Ensure.NotNullOrEmpty(projectFile, nameof(projectFile));
+            Ensure.NotNull(outputSink, nameof(outputSink));
 
             _logger = logger;
             _projectFile = projectFile;
             _watchTargetsDir = FindWatchTargetsDir();
+            _outputSink = outputSink;
         }
+
+        internal List<string> BuildFlags { get; } = new List<string>
+        {
+            "/nologo",
+            "/v:n",
+            "/t:GenerateWatchList",
+            "/p:DotNetWatchBuild=true", // extensibility point for users
+            "/p:DesignTimeBuild=true", // don't do expensive things
+        };
 
         public async Task<IFileSet> CreateAsync(CancellationToken cancellationToken)
         {
@@ -46,31 +64,24 @@ namespace Microsoft.DotNet.Watcher.Internal
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    var msBuildOutput = new List<string>();
-
 #if DEBUG
                     var stopwatch = new Stopwatch();
                     stopwatch.Start();
 #endif
-
+                    var capture = _outputSink.StartCapture();
                     // TODO adding files doesn't currently work. Need to provide a way to detect new files
                     // find files
                     var exitCode = Command.CreateDotNet("msbuild",
                         new[]
                         {
                             _projectFile,
-                            "/nologo",
-                            "/v:n",
-                            "/t:GenerateWatchList",
-                            "/p:DotNetWatchBuild=true", // extensibility point for users
-                            "/p:DesignTimeBuild=true", // don't do expensive things
                             $"/p:_DotNetWatchTargetsLocation={_watchTargetsDir}", // add our dotnet-watch targets
                             $"/p:_DotNetWatchListFile={watchList}",
-                        })
+                        }.Concat(BuildFlags))
                         .CaptureStdErr()
                         .CaptureStdOut()
-                        .OnErrorLine(l => msBuildOutput.Add(l))
-                        .OnOutputLine(l => msBuildOutput.Add(l))
+                        .OnErrorLine(l => capture.WriteErrorLine(l))
+                        .OnOutputLine(l => capture.WriteOutputLine(l))
                         .WorkingDirectory(projectDir)
                         .Execute()
                         .ExitCode;
@@ -94,7 +105,7 @@ namespace Microsoft.DotNet.Watcher.Internal
                     }
 
                     _logger.LogError($"Error(s) finding watch items project file '{Path.GetFileName(_projectFile)}': ");
-                    _logger.LogError(string.Join(Environment.NewLine, msBuildOutput));
+                    _logger.LogError(capture.GetAllLines("[MSBUILD] : "));
                     _logger.LogInformation("Fix the error to continue.");
 
                     var fileSet = new FileSet(new[] { _projectFile });

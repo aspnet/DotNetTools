@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Text;
 
 namespace Microsoft.DotNetWatcher.Tools.Tests
 {
@@ -32,10 +33,12 @@ namespace Microsoft.DotNetWatcher.Tools.Tests
 
         public TemporaryCSharpProject(string name, TemporaryDirectory directory)
         {
+            Name = name;
             _filename = name + ".csproj";
             _directory = directory;
         }
 
+        public string Name { get; }
         public string Path => System.IO.Path.Combine(_directory.Root, _filename);
 
         public TemporaryCSharpProject WithTargetFrameworks(params string[] tfms)
@@ -45,25 +48,30 @@ namespace Microsoft.DotNetWatcher.Tools.Tests
         }
 
         public TemporaryCSharpProject WithItem(string itemName, string include, string condition = null)
+            => WithItem(new ItemSpec { Name = itemName, Include = include, Condition = condition });
+
+        public TemporaryCSharpProject WithItem(ItemSpec item)
         {
-            var item = $"<{itemName} Include=\"{include}\"";
-            if (condition != null)
-            {
-                item += $" Condition=\"{condition}\"";
-            }
-            item += " />";
-            _items.Add(item);
+            var sb = new StringBuilder("<");
+            sb.Append(item.Name).Append(" ");
+            if (item.Include != null) sb.Append(" Include=\"").Append(item.Include).Append('"');
+            if (item.Remove != null) sb.Append(" Remove=\"").Append(item.Remove).Append('"');
+            if (item.Exclude != null) sb.Append(" Exclude=\"").Append(item.Exclude).Append('"');
+            if (item.Condition != null) sb.Append(" Exclude=\"").Append(item.Condition).Append('"');
+            if (!item.Watch) sb.Append(" Watch=\"false\" ");
+            sb.Append(" />");
+            _items.Add(sb.ToString());
             return this;
         }
 
-        public TemporaryCSharpProject WithProjectReference(TemporaryCSharpProject reference)
+        public TemporaryCSharpProject WithProjectReference(TemporaryCSharpProject reference, bool watch = true)
         {
             if (ReferenceEquals(this, reference))
             {
-                throw new InvalidOperationException("Can add project reference to selv");
+                throw new InvalidOperationException("Can add project reference to self");
             }
 
-            return WithItem("ProjectReference", reference.Path);
+            return WithItem(new ItemSpec { Name = "ProjectReference", Include = reference.Path, Watch = watch });
         }
 
         public TemporaryCSharpProject WithDefaultGlobs()
@@ -83,6 +91,16 @@ namespace Microsoft.DotNetWatcher.Tools.Tests
                     : $"<TargetFrameworks>{string.Join(";", _tfms)}</TargetFrameworks>";
 
             _directory.CreateFile(_filename, string.Format(Template, tfm, string.Join("\r\n", _items)));
+        }
+
+        public class ItemSpec
+        {
+            public string Name { get; set; }
+            public string Include { get; set; }
+            public string Exclude { get; set; }
+            public string Remove { get; set; }
+            public bool Watch { get; set; } = true;
+            public string Condition { get; set; }
         }
     }
 }

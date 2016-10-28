@@ -7,13 +7,10 @@
   Main target called by dotnet-watch. This is the single-tfm version.
   For multi-tfm version, see the Outer.targets file for description of the
   design of this target.
-
-  NB: this single-tfm version has to manually call _CoreCollectWatchItems
-  to gather watch items from 'this' project.
   =========================================================================
   -->
   <Target Name="GenerateWatchList"
-          DependsOnTargets="_CollectWatchProjects;_CollectWatchItems;_CoreCollectWatchItems;_WriteGeneratedWatchList" />
+          DependsOnTargets="_CollectWatchProjects;_CollectWatchItems;_WriteGeneratedWatchList" />
 
   <!--
   =========================================================================
@@ -25,6 +22,8 @@
   =========================================================================
   -->
   <Target Name="_CoreCollectWatchItems" Returns="@(Watch)">
+    <!-- message used to debug -->
+    <Message Importance="High" Text="Collecting watch items from '$(MSBuildProjectName)'" Condition="'$(_DotNetWatchTraceOutput)'=='true'" />
     <ItemGroup>
       <Watch Include="@(Compile->'%(FullPath)')" Condition="'%(Compile.Watch)' != 'false'" />
       <Watch Include="@(EmbeddedResource->'%(FullPath)')" Condition="'%(EmbeddedResource.Watch)' != 'false'"/>
@@ -45,9 +44,10 @@
   -->
   <Target Name="_CollectWatchProjects"
           Returns="@(_DotNetWatchProjects)">
+    <!-- message used to debug -->
+    <Message Importance="High" Text="Collecting referenced projects from '$(MSBuildProjectName)'" Condition="'$(_DotNetWatchTraceOutput)'=='true'" />
     <ItemGroup>
-      <_DotNetWatchProjects Include="@(ProjectReference->'%(FullPath)')" Condition="'%(ProjectReference.Watch)' != 'false'">
-      </_DotNetWatchProjects>
+      <_DotNetWatchProjects Include="@(ProjectReference->'%(FullPath)')" Condition="'%(ProjectReference.Watch)' != 'false'" />
       <_DotNetWatchImportsTargets Include="@(_DotNetWatchProjects->'%(RelativeDir)obj\%(FileName)%(Extension).dotnetwatch.targets')">
         <TargetsFile>$(_DotNetWatchTargetsFile)</TargetsFile>
       </_DotNetWatchImportsTargets>
