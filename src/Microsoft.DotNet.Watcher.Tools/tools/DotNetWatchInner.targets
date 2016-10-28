@@ -1,10 +1,29 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
-  <Import Project="DotNetWatchCommon.targets" Condition="'$(IsCrossTargettingBuild)'!='true'" />
+  <!--
+  =========================================================================
+  GenerateWatchList
 
+  Main target called by dotnet-watch. This is the single-tfm version.
+  For multi-tfm version, see the Outer.targets file for description of the
+  design of this target.
+
+  NB: this single-tfm version has to manually call _CoreCollectWatchItems
+  to gather watch items from 'this' project.
+  =========================================================================
+  -->
   <Target Name="GenerateWatchList"
           DependsOnTargets="_CollectWatchProjects;_CollectWatchItems;_CoreCollectWatchItems;_WriteGeneratedWatchList" />
 
+  <!--
+  =========================================================================
+  _CoreCollectWatchItems
+
+  Creates item group with default set of files to watch.
+
+  Returns: @(Watch)
+  =========================================================================
+  -->
   <Target Name="_CoreCollectWatchItems" Returns="@(Watch)">
     <ItemGroup>
       <Watch Include="@(Compile->'%(FullPath)')" Condition="'%(Compile.Watch)' != 'false'" />
@@ -13,6 +32,17 @@
     </ItemGroup>
   </Target>
 
+  <!--
+  =========================================================================
+  _CollectWatchProjects
+
+  Adds all ProjectReference items to _DotNetWatchProjects.
+  Copies the project file extension file to all project references.
+  Invokes '_CollectWatchProjects' on all referenced projects.
+
+  Returns: @(_DotNetWatchProjects)
+  =========================================================================
+  -->
   <Target Name="_CollectWatchProjects"
           Returns="@(_DotNetWatchProjects)">
     <ItemGroup>
@@ -24,8 +54,8 @@
     </ItemGroup>
 
      <Copy SourceFiles="@(_DotNetWatchImportsTargets->'%(TargetsFile)')"
-          DestinationFiles="@(_DotNetWatchImportsTargets)"
-          SkipUnchangedFiles="true" />
+           DestinationFiles="@(_DotNetWatchImportsTargets)"
+           SkipUnchangedFiles="true" />
 
     <MSBuild
       Targets="_CollectWatchProjects"

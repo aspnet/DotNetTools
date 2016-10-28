@@ -95,10 +95,8 @@ namespace Microsoft.DotNet.Watcher
             loggerFactory.AddProvider(commandProvider);
             var logger = loggerFactory.CreateLogger(LoggerName);
 
-            var projectFinder = new MsBuildProjectFinder(_workingDir);
-
             // TODO multiple projects should be easy enough to add here
-            var projectFile = projectFinder.FindMsBuildProject(options.Project);
+            var projectFile = MsBuildProjectFinder.FindMsBuildProject(_workingDir, options.Project);
             var fileSetFactory = new MsBuildFileSetFactory(logger, projectFile);
 
             var processInfo = new ProcessSpec

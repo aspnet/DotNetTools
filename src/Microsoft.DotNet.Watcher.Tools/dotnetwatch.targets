@@ -3,6 +3,10 @@
   <PropertyGroup>
     <_DotNetWatchTargetsFile Condition="'$(_DotNetWatchTargetsFile)' == ''">$(MSBuildThisFileFullPath)</_DotNetWatchTargetsFile>
   </PropertyGroup>
+
+  <Import Project="$(_DotNetWatchTargetsLocation)\DotNetWatchCommon.targets"
+          Condition="Exists('$(_DotNetWatchTargetsLocation)\DotNetWatchCommon.targets')" />
+
   <ImportGroup Condition="'$(TargetFramework)'==''">
     <Import Project="$(_DotNetWatchTargetsLocation)\DotNetWatchOuter.targets"
             Condition="Exists('$(_DotNetWatchTargetsLocation)\DotNetWatchOuter.targets')" />

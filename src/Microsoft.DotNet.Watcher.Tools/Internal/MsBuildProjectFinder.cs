@@ -11,36 +11,20 @@ namespace Microsoft.DotNet.Watcher.Internal
 {
     internal class MsBuildProjectFinder
     {
-        private readonly string _directory;
-
-        public MsBuildProjectFinder(string directory)
+        /// <summary>
+        /// Finds a compatible MSBuild project.
+        /// <param name="searchBase">The base directory to search</param>
+        /// <param name="project">The filename of the project. Can be null.</param>
+        /// </summary>
+        public static string FindMsBuildProject(string searchBase, string project)
         {
-            Ensure.NotNullOrEmpty(directory, nameof(directory));
+            Ensure.NotNullOrEmpty(searchBase, nameof(searchBase));
 
-            _directory = directory;
-        }
-
-        public bool TryFindMsBuildProject(string project, out string result)
-        {
-            try
-            {
-                result = FindMsBuildProject(project);
-                return true;
-            }
-            catch
-            {
-                result = null;
-                return false;
-            }
-        }
-
-        public string FindMsBuildProject(string project)
-        {
-            var projectPath = project ?? _directory;
+            var projectPath = project ?? searchBase;
 
             if (!Path.IsPathRooted(projectPath))
             {
-                projectPath = Path.Combine(_directory, projectPath);
+                projectPath = Path.Combine(searchBase, projectPath);
             }
 
             if (Directory.Exists(projectPath))

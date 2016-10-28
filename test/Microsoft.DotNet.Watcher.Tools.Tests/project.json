@@ -18,5 +18,8 @@
       }
     }
   },
+  "scripts": {
+    "precompile": "copyfiles %compile:OutputDir%"
+  },
   "testRunner": "xunit"
 }

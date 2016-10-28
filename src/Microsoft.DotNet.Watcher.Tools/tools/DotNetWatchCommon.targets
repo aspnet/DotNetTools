@@ -6,6 +6,15 @@
                       Lines="@(Watch -> '%(FullPath)')" />
   </Target>
 
+  <!--
+  =========================================================================
+  _CollectWatchItems
+
+  Invokes _CoreCollectWatchItems on each distinct project in _DotNetWatchProjects.
+
+  Returns: @(Watch)
+  =========================================================================
+  -->
   <Target Name="_CollectWatchItems">
     <RemoveDuplicates Inputs="@(_DotNetWatchProjects)">
         <Output TaskParameter="Filtered" ItemName="_DotNetWatchProjectsFiltered" />
