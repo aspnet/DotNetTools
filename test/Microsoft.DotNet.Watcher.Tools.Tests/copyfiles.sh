@@ -6,6 +6,7 @@ if [ -z $1 ]; then
 fi
 
 mkdir -p $1/tools
+echo "Copying ./../src/Microsoft.DotNet.Watcher.Tools/tools/*.targets"
 cp ../../src/Microsoft.DotNet.Watcher.Tools/tools/*.targets $1/tools
 
 exit 0
