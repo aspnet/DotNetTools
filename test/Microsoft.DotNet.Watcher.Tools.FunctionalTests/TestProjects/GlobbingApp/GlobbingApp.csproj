@@ -4,12 +4,13 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp1.0</TargetFramework>
     <OutputType>Exe</OutputType>
+    <SharedFxVersion Condition="'$(SharedFxVersion)'==''">1.1.0-*</SharedFxVersion>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Program.cs;include\*.cs" Exclude="exclude\*" />
     <EmbeddedResource Include="**\*.resx"  />
     <PackageReference Include="Microsoft.NET.Sdk" Version="1.0.0-*" PrivateAssets="All" />
-    <PackageReference Include="Microsoft.NETCore.App" Version="1.1.0-*" />
+    <PackageReference Include="Microsoft.NETCore.App" Version="$(SharedFxVersion)" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

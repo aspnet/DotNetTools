@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <ItemGroup>
+        <Compile Include="$(MSBuildThisFileDirectory)Program.cs" />
+    </ItemGroup>
+    <!-- workaround https://github.com/Microsoft/vstest/issues/169 -->
+    <Target Name="XunitTest" DependsOnTargets="Build">
+        <PropertyGroup>
+            <_MuxerPath>$(MSBuildToolsPath)</_MuxerPath>
+            <_MuxerPath>$([System.IO.Path]::GetDirectoryName('$(_MuxerPath)'))</_MuxerPath>
+            <_MuxerPath>$([System.IO.Path]::GetDirectoryName('$(_MuxerPath)'))</_MuxerPath>
+            <_MuxerPath>$(_MuxerPath)\dotnet</_MuxerPath>
+            <_MuxerPath Condition="'$(OS)'=='Windows_NT'">$(_MuxerPath).exe</_MuxerPath>
+        </PropertyGroup>
+        <Copy SourceFiles="$(NuGetPackageRoot)\dotnet-test-xunit\$(DotNetTestXunitVersion)\lib\netcoreapp1.0\dotnet-test-xunit.dll" DestinationFolder="$(TargetDir)" />
+        <Exec Command="$(_MuxerPath) exec --depsfile &quot;$(ProjectDepsFilePath)&quot; --runtimeconfig &quot;$(ProjectRuntimeConfigFilePath)&quot; dotnet-test-xunit.dll $(AssemblyName).dll"
+              WorkingDirectory="$(TargetDir)" />
+    </Target>
+</Project>

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" DefaultTargets="Default" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <!-- TODO use common build lifecycle -->
+
+    <Import Project="build\common.props" />
+
+    <PropertyGroup>
+        <ArtifactsPath>$(MSBuildThisFileDirectory)artifacts\build\</ArtifactsPath>
+        <SolutionFile>$(MSBuildThisFileDirectory)DotNetTools.sln</SolutionFile>
+    </PropertyGroup>
+    <ItemGroup>
+        <SourceProjects Include="src\*\*.csproj" />
+        <TestProjects Include="test\*\*.csproj" />
+    </ItemGroup>
+    <Target Name="Clean">
+        <RemoveDir Directories="$(ArtifactsPath);$(MSBuildThisFileDirectory)testWorkDir" />
+        <MSBuild Projects="$(SolutionFile)" Targets="Clean" />
+    </Target>
+    <Target Name="Initialize" DependsOnTargets="Clean">
+        <PropertyGroup>
+            <_Config>
+    Build settings:
+
+    SharedFxVersion: $(SharedFxVersion)
+    DotnetCliVersion: $(DotnetCliVersion)
+    MSBuildToolsPath: $(MSBuildToolsPath)
+            </_Config>
+        </PropertyGroup>
+        <Message Importance="High" Text="$(_Config)"/>
+        <!-- cannot invoke restore target directly, see https://github.com/dotnet/sdk/issues/203 -->
+        <!--<MSBuild Projects="$(SolutionFile)" Targets="Restore"/>-->
+    </Target>
+    <Target Name="Compile" DependsOnTargets="Initialize">
+        <MSBuild Projects="$(SolutionFile)" Targets="Build" />
+    </Target>
+    <Target Name="Pack" DependsOnTargets="Compile">
+        <MSBuild Targets="Pack" Projects="@(SourceProjects)" Properties="PackageOutputPath=$(ArtifactsPath)" />
+    </Target>
+    <Target Name="Test" DependsOnTargets="Initialize">
+        <MSBuild Targets="XunitTest" Projects="@(TestProjects)" />
+    </Target>
+    <Target Name="Default" DependsOnTargets="Clean;Pack;Test;" />
+</Project>

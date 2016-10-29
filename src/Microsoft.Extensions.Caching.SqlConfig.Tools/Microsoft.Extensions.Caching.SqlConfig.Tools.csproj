@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" />
+  <Import Project="..\..\build\common.props" />
+  <PropertyGroup>
+    <TargetFramework>netcoreapp1.0</TargetFramework>
+    <AssemblyName>dotnet-sql-cache</AssemblyName>
+    <OutputType>Exe</OutputType>
+    <Description>Command line tool to create tables and indexes in a Microsoft SQL Server database for distributed caching.</Description>
+    <PackageTags>cache;distributedcache;sqlserver</PackageTags>
+    <PackageType>DotnetCliTool</PackageType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="**\*.cs" />
+    <None Include="$(ProjectRuntimeConfigFilePath)" Pack="true" PackagePath="lib\$(TargetFramework)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.CommandLineUtils" Version="1.1.0-*" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="1.1.0-*" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="1.1.0-*" />
+    <PackageReference Include="System.Data.SqlClient" Version="4.3.0-*" />
+    <PackageReference Include="Microsoft.NETCore.App" Version="$(SharedFxVersion)" />
+    <PackageReference Include="Microsoft.NET.Sdk" Version="1.0.0-*" PrivateAssets="all" />
+
+      <!-- ExcludeAssets="build" to workaround https://github.com/dotnet/corefx/issues/12913 -->
+    <PackageReference Include="Microsoft.DiaSymReader.Native" Version="1.4.0" ExcludeAssets="build" PrivateAssets="All" />
+  </ItemGroup>
+  <Import Project="..\..\build\common.targets" />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

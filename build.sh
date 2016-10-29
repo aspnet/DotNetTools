@@ -1,46 +1,25 @@
 #!/usr/bin/env bash
-repoFolder="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-cd $repoFolder
+set -e
 
-koreBuildZip="https://github.com/aspnet/KoreBuild/archive/feature/msbuild.zip"
-if [ ! -z $KOREBUILD_ZIP ]; then
-    koreBuildZip=$KOREBUILD_ZIP
+cwd="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+pushd $cwd > /dev/null
+
+export DOTNET_HOME="$cwd/.dotnet"
+export PATH="$DOTNET_HOME:$PATH"
+mkdir -p $DOTNET_HOME
+
+channel=$(cat $cwd/toolversions.txt | grep 'channel' | awk '{print $2}')
+export DotnetCliVersion=$(cat $cwd/toolversions.txt | grep 'cli' | awk '{print $2}')
+export SharedFxVersion=$(cat $cwd/toolversions.txt | grep 'sharedfx' | awk '{print $2}')
+
+if test ! -x $DOTNET_HOME/dotnet || test "$($DOTNET_HOME/dotnet --version)" != $DotnetCliVersion ; then
+    curl -sSL https://raw.githubusercontent.com/dotnet/cli/rel/1.0.0/scripts/obtain/dotnet-install.sh \
+        | bash -s -- -i $DOTNET_HOME --version $DotnetCliVersion
 fi
 
-buildFolder=".build"
-buildFile="$buildFolder/KoreBuild.sh"
-
-if test ! -d $buildFolder; then
-    echo "Downloading KoreBuild from $koreBuildZip"
-
-    tempFolder="/tmp/KoreBuild-$(uuidgen)"
-    mkdir $tempFolder
-
-    localZipFile="$tempFolder/korebuild.zip"
-
-    retries=6
-    until (wget -O $localZipFile $koreBuildZip 2>/dev/null || curl -o $localZipFile --location $koreBuildZip 2>/dev/null)
-    do
-        echo "Failed to download '$koreBuildZip'"
-        if [ "$retries" -le 0 ]; then
-            exit 1
-        fi
-        retries=$((retries - 1))
-        echo "Waiting 10 seconds before retrying. Retries left: $retries"
-        sleep 10s
-    done
-
-    unzip -q -d $tempFolder $localZipFile
-
-    mkdir $buildFolder
-    cp -r $tempFolder/**/build/** $buildFolder
-
-    chmod +x $buildFile
-
-    # Cleanup
-    if test ! -d $tempFolder; then
-        rm -rf $tempFolder
-    fi
+if test ! -d "$DOTNET_HOME/shared/Microsoft.NETCore.App/$SharedFxVersion" ; then
+    curl -sSL https://raw.githubusercontent.com/dotnet/cli/rel/1.0.0/scripts/obtain/dotnet-install.sh \
+        | bash -s -- -i $DOTNET_HOME --shared-runtime --version $SharedFxVersion --channel $channel
 fi
 
-$buildFile -r $repoFolder "$@"
+$DOTNET_HOME/dotnet msbuild dir.proj /nologo /v:m "$@"
