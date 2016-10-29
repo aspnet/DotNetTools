@@ -13,7 +13,7 @@
       <packageType name="DotnetCliTool" />
     </packageTypes>
     <dependencies>
-      <group targetFramework=".NETCoreApp1.0">
+      <group targetFramework=".NETCoreApp1.1">
         <dependency id="Microsoft.DotNet.Cli.Utils" version="$dep_1$" />
         <dependency id="Microsoft.Extensions.CommandLineUtils" version="$dep_2$" />
         <dependency id="Microsoft.Extensions.Logging" version="$dep_3$" />
@@ -23,7 +23,7 @@
     </dependencies>
   </metadata>
   <files>
-    <file src="bin/$configuration$/netcoreapp1.0/dotnet-watch.dll" target="lib\netcoreapp1.0\" />
-    <file src="bin/$configuration$/netcoreapp1.0/dotnet-watch.runtimeconfig.json" target="lib/netcoreapp1.0\" />
+    <file src="bin/$configuration$/netcoreapp1.1/dotnet-watch.dll" target="lib\netcoreapp1.1\" />
+    <file src="bin/$configuration$/netcoreapp1.1/dotnet-watch.runtimeconfig.json" target="lib/netcoreapp1.1\" />
   </files>
 </package>

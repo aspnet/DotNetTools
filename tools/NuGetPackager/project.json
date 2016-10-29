@@ -10,7 +10,8 @@
     },
     "Microsoft.DotNet.ProjectModel": "1.0.0-*",
     "Microsoft.DotNet.Cli.Utils": "1.0.0-*",
-    "Microsoft.Extensions.CommandLineUtils": "1.1.0-*"
+    "Microsoft.Extensions.CommandLineUtils": "1.1.0-*",
+    "NuGet.Frameworks": "3.5.0-*"
   },
 
   "frameworks": {
