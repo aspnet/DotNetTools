@@ -27,8 +27,8 @@
             </_Config>
         </PropertyGroup>
         <Message Importance="High" Text="$(_Config)"/>
-        <!-- cannot invoke restore target directly, see https://github.com/dotnet/sdk/issues/203 -->
-        <!--<MSBuild Projects="$(SolutionFile)" Targets="Restore"/>-->
+        <!-- SkipInvalidConfigurations=true required to workaround https://github.com/dotnet/sdk/issues/203 -->
+        <MSBuild Projects="$(SolutionFile)" Targets="Restore" Properties="SkipInvalidConfigurations=true" />
     </Target>
     <Target Name="Compile" DependsOnTargets="Initialize">
         <MSBuild Projects="$(SolutionFile)" Targets="Build" />

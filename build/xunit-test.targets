@@ -14,6 +14,7 @@
         </PropertyGroup>
         <Copy SourceFiles="$(NuGetPackageRoot)\dotnet-test-xunit\$(DotNetTestXunitVersion)\lib\netcoreapp1.0\dotnet-test-xunit.dll" DestinationFolder="$(TargetDir)" />
         <Exec Command="$(_MuxerPath) exec --depsfile &quot;$(ProjectDepsFilePath)&quot; --runtimeconfig &quot;$(ProjectRuntimeConfigFilePath)&quot; dotnet-test-xunit.dll $(AssemblyName).dll"
-              WorkingDirectory="$(TargetDir)" />
+              WorkingDirectory="$(TargetDir)"
+              IgnoreStandardErrorWarningFormat="true" />
     </Target>
 </Project>

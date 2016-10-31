@@ -3,6 +3,7 @@ $ErrorActionPreference = "Stop"
 
 cd $PSScriptRoot
 
+$env:DOTNET_SKIP_FIRST_TIME_EXPERIENCE=1
 $env:DOTNET_HOME = "$PSScriptRoot/.dotnet"
 $env:PATH += $env:DOTNET_HOME
 mkdir $env:DOTNET_HOME -ErrorAction Ignore | Out-Null
@@ -20,6 +21,7 @@ function get-installer-script {
 }
 
 if ( !(Test-Path $env:DOTNET_HOME/dotnet.exe) -or "$(& $env:DOTNET_HOME/dotnet.exe --version)" -ne $env:DotnetCliVersion) {
+    rm -Recurse -Force $env:DOTNET_HOME/sdk -ErrorAction Ignore
     get-installer-script
     & $env:DOTNET_HOME/dotnet-install.ps1 -InstallDir $env:DOTNET_HOME -Version $env:DotnetCliVersion
 }
@@ -28,8 +30,5 @@ if (!(Test-Path "$env:DOTNET_HOME/shared/Microsoft.NETCore.App/$env:SharedFxVers
     get-installer-script
     & $env:DOTNET_HOME/dotnet-install.ps1 -SharedRuntime -Channel $channel -InstallDir $env:DOTNET_HOME -Version $env:SharedFxVersion
 }
-
-# workaround https://github.com/dotnet/sdk/issues/203
-& $env:DOTNET_HOME/dotnet.exe restore3 DotNetTools.sln
 
 & $env:DOTNET_HOME/dotnet.exe msbuild dir.proj /nologo /v:m $args
