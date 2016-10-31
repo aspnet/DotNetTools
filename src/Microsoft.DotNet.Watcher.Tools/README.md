@@ -4,30 +4,26 @@ dotnet-watch
 
 ### How To Install
 
-Add `Microsoft.DotNet.Watcher.Tools` to the `tools` section of your `project.json` file:
+Install `Microsoft.DotNet.Watcher.Tools` as a `DotNetCliReference` to your project.
 
-```
-{
-...
-  "tools": {
-    "Microsoft.DotNet.Watcher.Tools": "1.0.0-*"
-  }
-...
-}
+```xml
+  <ItemGroup>
+    <DotNetCliToolReference Include="Microsoft.DotNet.Watcher.Tools" Version="1.0.0-*" />
+  </ItemGroup>
 ```
 
 ### How To Use
 
     dotnet watch [-?|-h|--help]
 
-    dotnet watch [options] [[--] <dotnet arguments>...]
+    dotnet watch [options] [[--] <args>...]
 
     Options:
       -?|-h|--help  Show help information
       -q|--quiet    Suppresses all output except warnings and errors
       -v|--verbose  Show verbose output
 
-Add `watch` after `dotnet` in the command that you want to run:
+Add `watch` after `dotnet` and before the command arguments that you want to run:
 
 | What you want to run                           | Dotnet watch command                                     |
 | ---------------------------------------------- | -------------------------------------------------------- |
@@ -48,26 +44,12 @@ Some configuration options can be passed to `dotnet watch` through environment v
 
 dotnet-watch can be configured from the MSBuild project file being watched.
 
-**Project References**
-
-By default, dotnet-watch will scan the entire graph of project references and watch all files within those projects.
-
-dotnet-watch will ignore project references with the `Watch="false"` attribute.
-
-```xml
-<ItemGroup>
-  <ProjectReference Include="..\ClassLibrary1\ClassLibrary1.csproj" Watch="false" />
-</ItemGroup>
-```
-
 **Watch items**
 
-dotnet-watch will watch all items in the "<kbd>Watch</kbd>" item group.
-By default, this group inclues all items in "<kbd>Compile</kbd>" and "<kbd>EmbeddedResource</kbd>".
+dotnet-watch will watch all items in the **Watch** item group.
+By default, this group inclues all items in **Compile** and **EmbeddedResource**.
 
 More items can be added to watch in a project file by adding items to 'Watch'.
-
-Example:
 
 ```xml
 <ItemGroup>
@@ -84,7 +66,20 @@ Example:
 <ItemGroup>
     <!-- exclude Generated.cs from dotnet-watch -->
     <Compile Include="Generated.cs" Watch="false" />
-    <EmbeddedResource Include="Generated.cs" Watch="false" />
+    <!-- exclude Strings.resx from dotnet-watch -->
+    <EmbeddedResource Include="Strings.resx" Watch="false" />
+</ItemGroup>
+```
+
+**Project References**
+
+By default, dotnet-watch will scan the entire graph of project references and watch all files within those projects.
+
+dotnet-watch will ignore project references with the `Watch="false"` attribute.
+
+```xml
+<ItemGroup>
+  <ProjectReference Include="..\ClassLibrary1\ClassLibrary1.csproj" Watch="false" />
 </ItemGroup>
 ```
 
@@ -98,6 +93,6 @@ Example:
 
 ```xml
   <ItemGroup Condition="'$(DotNetWatchBuild)'=='true'">
-    <!-- design-time only items -->
+    <!-- only included in the project when dotnet-watch is running -->
   </ItemGroup>
 ```
