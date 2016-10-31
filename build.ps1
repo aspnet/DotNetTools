@@ -1,67 +1,34 @@
 $ErrorActionPreference = "Stop"
 
-function DownloadWithRetry([string] $url, [string] $downloadLocation, [int] $retries)
-{
-    while($true)
-    {
-        try
-        {
-            Invoke-WebRequest $url -OutFile $downloadLocation
-            break
-        }
-        catch
-        {
-            $exceptionMessage = $_.Exception.Message
-            Write-Host "Failed to download '$url': $exceptionMessage"
-            if ($retries -gt 0) {
-                $retries--
-                Write-Host "Waiting 10 seconds before retrying. Retries left: $retries"
-                Start-Sleep -Seconds 10
-
-            }
-            else
-            {
-                $exception = $_.Exception
-                throw $exception
-            }
-        }
-    }
-}
 
 cd $PSScriptRoot
 
-$repoFolder = $PSScriptRoot
-$env:REPO_FOLDER = $repoFolder
+$env:DOTNET_SKIP_FIRST_TIME_EXPERIENCE=1
+$env:DOTNET_HOME = "$PSScriptRoot/.dotnet"
+$env:PATH += $env:DOTNET_HOME
+mkdir $env:DOTNET_HOME -ErrorAction Ignore | Out-Null
 
-$koreBuildZip="https://github.com/aspnet/KoreBuild/archive/feature/msbuild.zip"
-if ($env:KOREBUILD_ZIP)
-{
-    $koreBuildZip=$env:KOREBUILD_ZIP
-}
+$versions = Get-Content "$PSScriptRoot/toolversions.txt"
+$channel=($(sls 'channel' $PSScriptRoot/toolversions.txt | select -exp line) -split ': ')[1]
+$env:DotnetCliVersion=($(sls 'cli' $PSScriptRoot/toolversions.txt | select -exp line) -split ': ')[1]
+$env:SharedFxVersion=($(sls 'sharedfx' $PSScriptRoot/toolversions.txt | select -exp line) -split ': ')[1]
 
-$buildFolder = ".build"
-$buildFile="$buildFolder\KoreBuild.ps1"
-
-if (!(Test-Path $buildFolder)) {
-    Write-Host "Downloading KoreBuild from $koreBuildZip"
-
-    $tempFolder=$env:TEMP + "\KoreBuild-" + [guid]::NewGuid()
-    New-Item -Path "$tempFolder" -Type directory | Out-Null
-
-    $localZipFile="$tempFolder\korebuild.zip"
-
-    DownloadWithRetry -url $koreBuildZip -downloadLocation $localZipFile -retries 6
-
-    Add-Type -AssemblyName System.IO.Compression.FileSystem
-    [System.IO.Compression.ZipFile]::ExtractToDirectory($localZipFile, $tempFolder)
-
-    New-Item -Path "$buildFolder" -Type directory | Out-Null
-    copy-item "$tempFolder\**\build\*" $buildFolder -Recurse
-
-    # Cleanup
-    if (Test-Path $tempFolder) {
-        Remove-Item -Recurse -Force $tempFolder
+function get-installer-script {
+    $target = "$env:DOTNET_HOME/dotnet-install.ps1"
+    if (!(test-path $target)) {
+        Invoke-WebRequest https://raw.githubusercontent.com/dotnet/cli/rel/1.0.0/scripts/obtain/dotnet-install.ps1 -OutFile $target
     }
 }
 
-&"$buildFile" $args
+if ( !(Test-Path $env:DOTNET_HOME/dotnet.exe) -or "$(& $env:DOTNET_HOME/dotnet.exe --version)" -ne $env:DotnetCliVersion) {
+    rm -Recurse -Force $env:DOTNET_HOME/sdk -ErrorAction Ignore
+    get-installer-script
+    & $env:DOTNET_HOME/dotnet-install.ps1 -InstallDir $env:DOTNET_HOME -Version $env:DotnetCliVersion
+}
+
+if (!(Test-Path "$env:DOTNET_HOME/shared/Microsoft.NETCore.App/$env:SharedFxVersion")) {
+    get-installer-script
+    & $env:DOTNET_HOME/dotnet-install.ps1 -SharedRuntime -Channel $channel -InstallDir $env:DOTNET_HOME -Version $env:SharedFxVersion
+}
+
+& $env:DOTNET_HOME/dotnet.exe msbuild dir.proj /nologo /v:m $args

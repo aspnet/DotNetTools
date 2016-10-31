@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" />
+  <Import Project="..\..\build\common.props" />
+  <PropertyGroup>
+    <TargetFramework>netcoreapp1.1</TargetFramework>
+    <OutputType>Exe</OutputType>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="**\*.cs" />
+    <Content Include="..\..\src\Microsoft.DotNet.Watcher.Tools\tools\DotNetWatchInner.targets" Link="tools\DotNetWatchInner.targets" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="..\..\src\Microsoft.DotNet.Watcher.Tools\tools\DotNetWatchOuter.targets" Link="tools\DotNetWatchOuter.targets" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="..\..\src\Microsoft.DotNet.Watcher.Tools\tools\DotNetWatchCommon.targets" Link="tools\DotNetWatchCommon.targets" CopyToOutputDirectory="PreserveNewest" />
+    <ProjectReference Include="..\..\src\Microsoft.DotNet.Watcher.Tools\Microsoft.DotNet.Watcher.Tools.csproj" />
+    <PackageReference Include="xunit" Version="2.2.0-*" />
+    <PackageReference Include="dotnet-test-xunit" Version="$(DotNetTestXunitVersion)" />
+    <PackageReference Include="Microsoft.NETCore.App" Version="$(SharedFxVersion)" />
+    <PackageReference Include="Microsoft.NET.Sdk" Version="1.0.0-*" PrivateAssets="all" />
+  </ItemGroup>
+  <Import Project="..\..\build\common.targets" />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>
