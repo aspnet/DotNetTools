@@ -24,6 +24,7 @@
   </metadata>
   <files>
     <file src="bin/$configuration$/netcoreapp1.0/dotnet-sql-cache.dll" target="lib\netcoreapp1.0\" />
+    <file src="bin/$configuration$/netcoreapp1.0/dotnet-sql-cache.deps.json" target="lib\netcoreapp1.0\" />
     <file src="bin/$configuration$/netcoreapp1.0/dotnet-sql-cache.runtimeconfig.json" target="lib\netcoreapp1.0\" />
   </files>
 </package>
