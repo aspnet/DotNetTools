@@ -26,7 +26,17 @@ namespace Microsoft.DotNet.Watcher
                 FullName = "Microsoft DotNet File Watcher",
                 Out = stdout,
                 Error = stderr,
-                AllowArgumentSeparator = true
+                AllowArgumentSeparator = true,
+                ExtendedHelpText = @"
+Remarks:
+  The argument separator '--' can be used to ensure separation of the
+  arguments for 'dotnet-watch' and those passed into the subprocess.
+  For example: dotnet watch --quiet -- test -class TestClass1
+
+Examples:
+  dotnet watch run
+  dotnet watch test
+"
             };
 
             app.HelpOption("-?|-h|--help");
