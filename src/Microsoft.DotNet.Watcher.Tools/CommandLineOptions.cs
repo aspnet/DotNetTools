@@ -29,9 +29,17 @@ namespace Microsoft.DotNet.Watcher
                 AllowArgumentSeparator = true,
                 ExtendedHelpText = @"
 Remarks:
-  The argument separator '--' can be used to ensure separation of the
-  arguments for 'dotnet-watch' and those passed into the subprocess.
-  For example: dotnet watch --quiet -- test -class TestClass1
+  The special option '--' is used to delimit the end of the options and
+  the beginning of arguments that will be passed to the child dotnet process.
+  Its use is optional. When the special option '--' is not used,
+  dotnet-watch will use the first unrecognized argument as the beginning
+  of all arguments passed into the child dotnet process.
+
+  For example: dotnet watch -- --verbose run
+
+  Even though '--verbose' is an option dotnet-watch supports, the use of '--'
+  indicates that '--verbose' should be treated instead as an argument for
+  dotnet-run.
 
 Examples:
   dotnet watch run
