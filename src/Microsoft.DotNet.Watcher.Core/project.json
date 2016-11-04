@@ -1,5 +1,5 @@
 {
-  "version": "1.0.0-preview2-final",
+  "version": "1.0.0-preview4-final",
   "description": "Core logic for the dotnet-watch command line tool.",
   "packOptions": {
     "tags": [
@@ -17,10 +17,10 @@
   },
   "dependencies": {
     "Microsoft.DotNet.ProjectModel": "1.0.0-rc3-003121",
-    "Microsoft.Extensions.FileProviders.Abstractions": "1.0.0",
-    "Microsoft.Extensions.FileProviders.Physical": "1.0.0",
-    "Microsoft.Extensions.Logging.Abstractions": "1.0.0",
-    "Microsoft.Extensions.FileSystemGlobbing": "1.0.0",
+    "Microsoft.Extensions.FileProviders.Abstractions": "1.0.1",
+    "Microsoft.Extensions.FileProviders.Physical": "1.0.1",
+    "Microsoft.Extensions.Logging.Abstractions": "1.0.1",
+    "Microsoft.Extensions.FileSystemGlobbing": "1.0.1",
     "Microsoft.Extensions.Process.Sources": {
       "type": "build",
       "version": "1.0.0-rtm-21431"

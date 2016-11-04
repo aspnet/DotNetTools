@@ -72,7 +72,7 @@ namespace Microsoft.DotNet.Watcher.Tools.FunctionalTests
               new JObject(
                 new JProperty(toolName,
                   new JObject(
-                    new JProperty("version", "1.0.0-preview2-final"),
+                    new JProperty("version", "1.0.0-preview4-final"),
                     new JProperty("imports", "portable-net451+win8")))));
 
             File.WriteAllText(projectFile, projectJson.ToString());

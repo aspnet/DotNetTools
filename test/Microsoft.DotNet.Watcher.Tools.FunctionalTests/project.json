@@ -10,7 +10,7 @@
       "type": "build",
       "version": "1.0.0-rtm-21431"
     },
-    "Microsoft.DotNet.Watcher.Core": "1.0.0-preview2-final",
+    "Microsoft.DotNet.Watcher.Core": "1.0.0-preview4-final",
     "Newtonsoft.Json": "9.0.1",
     "System.Threading.Thread": "4.0.0",
     "xunit": "2.1.0"
