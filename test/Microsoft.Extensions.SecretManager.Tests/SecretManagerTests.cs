@@ -136,15 +136,19 @@ namespace Microsoft.Extensions.SecretManager.Tests
             secretManager.Run(new string[] { "-v", "set", "secret1", "value1", "-p", projectPath });
             Assert.Equal(3, logger.Messages.Count);
             Assert.Contains(string.Format("Project file path {0}.", projectPath), logger.Messages);
+#pragma warning disable CS0618
             Assert.Contains(string.Format("Secrets file path {0}.", PathHelper.GetSecretsPath(projectPath)), logger.Messages);
+#pragma warning restore CS0618
             Assert.Contains("Successfully saved secret1 = value1 to the secret store.", logger.Messages);
             logger.Messages.Clear();
 
             secretManager.Run(new string[] { "-v", "list", "-p", projectPath });
             Assert.Equal(3, logger.Messages.Count);
             Assert.Contains(string.Format("Project file path {0}.", projectPath), logger.Messages);
+#pragma warning disable CS0618
             Assert.Contains(string.Format("Secrets file path {0}.", PathHelper.GetSecretsPath(projectPath)), logger.Messages);
-            Assert.Contains("secret1 = value1", logger.Messages);
+ #pragma warning restore CS0618
+           Assert.Contains("secret1 = value1", logger.Messages);
 
             UserSecretHelper.DeleteTempSecretProject(projectPath);
         }

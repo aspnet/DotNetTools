@@ -15,7 +15,9 @@ namespace Microsoft.Extensions.SecretManager.Tests
         {
             string userSecretsId;
             var projectPath = UserSecretHelper.GetTempSecretProject(out userSecretsId);
+#pragma warning disable CS0618
             var actualSecretPath = PathHelper.GetSecretsPath(projectPath);
+#pragma warning restore CS0618
 
             var root = Environment.GetEnvironmentVariable("APPDATA") ??         // On Windows it goes to %APPDATA%\Microsoft\UserSecrets\
                         Environment.GetEnvironmentVariable("HOME");             // On Mac/Linux it goes to ~/.microsoft/usersecrets/
@@ -37,7 +39,9 @@ namespace Microsoft.Extensions.SecretManager.Tests
 
             Assert.Throws<InvalidOperationException>(() =>
             {
+#pragma warning disable CS0618
                 PathHelper.GetSecretsPath(projectPath);
+#pragma warning restore CS0618
             });
 
             UserSecretHelper.DeleteTempSecretProject(projectPath);
@@ -51,7 +55,9 @@ namespace Microsoft.Extensions.SecretManager.Tests
 
             Assert.Throws<InvalidOperationException>(() =>
             {
+#pragma warning disable CS0618
                 PathHelper.GetSecretsPath(projectPath);
+#pragma warning restore CS0618
             });
 
             UserSecretHelper.DeleteTempSecretProject(projectPath);
@@ -67,10 +73,12 @@ namespace Microsoft.Extensions.SecretManager.Tests
                 UserSecretHelper.SetTempSecretInProject(projectPath, "Test" + character);
                 Assert.Throws<InvalidOperationException>(() =>
                 {
+#pragma warning disable CS0618
                     PathHelper.GetSecretsPath(projectPath);
+#pragma warning restore CS0618
                 });
             }
-            
+
             UserSecretHelper.DeleteTempSecretProject(projectPath);
         }
     }
