@@ -223,7 +223,9 @@ namespace Microsoft.Extensions.SecretManager.Tools
         private void ProcessSecretFile(string projectPath, Action<JObject> observer, bool persist = true)
         {
             Logger.LogDebug(Resources.Message_Project_File_Path, projectPath);
+#pragma warning disable CS0618
             var secretsFilePath = PathHelper.GetSecretsPath(projectPath);
+#pragma warning restore CS0618
             Logger.LogDebug(Resources.Message_Secret_File_Path, secretsFilePath);
             var secretObj = File.Exists(secretsFilePath) ?
                             JObject.Parse(File.ReadAllText(secretsFilePath)) :
@@ -240,7 +242,9 @@ namespace Microsoft.Extensions.SecretManager.Tools
         private void ClearSecretFile(string projectPath)
         {
             Logger.LogDebug(Resources.Message_Project_File_Path, projectPath);
+#pragma warning disable CS0618
             var secretsFilePath = PathHelper.GetSecretsPath(projectPath);
+#pragma warning restore CS0618
             Logger.LogDebug(Resources.Message_Secret_File_Path, secretsFilePath);
 
             WriteSecretsFile(secretsFilePath, new JObject());
