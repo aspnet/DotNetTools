@@ -3,8 +3,8 @@
     "emitEntryPoint": true
   },
   "dependencies": {
-    "Microsoft.DotNet.Cli.Utils": "1.0.0-*",
-    "Microsoft.DotNet.ProjectModel": "1.0.0-*",
+    "Microsoft.DotNet.Cli.Utils": "1.0.0-preview2-003121",
+    "Microsoft.DotNet.ProjectModel": "1.0.0-rc3-003121",
     "Microsoft.Extensions.CommandLineUtils": "1.1.0",
     "Microsoft.NETCore.App": {
       "type": "platform",
