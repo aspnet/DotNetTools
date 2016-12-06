@@ -2,19 +2,20 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Reflection;
-using Microsoft.DotNet.Cli.Utils;
 using Microsoft.Extensions.CommandLineUtils;
+using Microsoft.Extensions.SecretManager.Tools.Internal;
+using Microsoft.Extensions.Tools.Internal;
 
-namespace Microsoft.Extensions.SecretManager.Tools.Internal
+namespace Microsoft.Extensions.SecretManager.Tools
 {
     public class CommandLineOptions
     {
-        public string Id { get; set; }
-        public bool IsVerbose { get; set; }
-        public bool IsHelp { get; set; }
-        public string Project { get; set; }
         public ICommand Command { get; set; }
-        public string Configuration { get; set; }
+        public string Configuration { get; private set; }
+        public string Id { get; private set; }
+        public bool IsHelp { get; private set; }
+        public bool IsVerbose { get; private set; }
+        public string Project { get; private set; }
 
         public static CommandLineOptions Parse(string[] args, IConsole console)
         {
@@ -28,15 +29,14 @@ namespace Microsoft.Extensions.SecretManager.Tools.Internal
             };
 
             app.HelpOption();
-            app.VersionOption("--version", GetInformationalVersion());
+            app.VersionOptionFromAssemblyAttributes(typeof(Program).GetTypeInfo().Assembly);
 
-            var optionVerbose = app.Option("-v|--verbose", "Verbose output",
-                CommandOptionType.NoValue, inherited: true);
+            var optionVerbose = app.VerboseOption();
 
             var optionProject = app.Option("-p|--project <PROJECT>", "Path to project, default is current directory",
                 CommandOptionType.SingleValue, inherited: true);
 
-            var optionConfig = app.Option("-c|--configuration <CONFIGURATION>", $"The project configuration to use. Defaults to {Constants.DefaultConfiguration}",
+            var optionConfig = app.Option("-c|--configuration <CONFIGURATION>", $"The project configuration to use. Defaults to 'Debug'",
                 CommandOptionType.SingleValue, inherited: true);
 
             // the escape hatch if project evaluation fails, or if users want to alter a secret store other than the one
@@ -46,7 +46,7 @@ namespace Microsoft.Extensions.SecretManager.Tools.Internal
 
             var options = new CommandLineOptions();
 
-            app.Command("set", c => SetCommand.Configure(c, options));
+            app.Command("set", c => SetCommand.Configure(c, options, console));
             app.Command("remove", c => RemoveCommand.Configure(c, options));
             app.Command("list", c => ListCommand.Configure(c, options));
             app.Command("clear", c => ClearCommand.Configure(c, options));
@@ -67,18 +67,6 @@ namespace Microsoft.Extensions.SecretManager.Tools.Internal
             options.Project = optionProject.Value();
 
             return options;
-        }
-
-        private static string GetInformationalVersion()
-        {
-            var assembly = typeof(Program).GetTypeInfo().Assembly;
-            var attribute = assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>();
-
-            var versionAttribute = attribute == null ?
-                assembly.GetName().Version.ToString() :
-                attribute.InformationalVersion;
-
-            return versionAttribute;
         }
     }
 }

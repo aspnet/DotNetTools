@@ -1,9 +1,8 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using Microsoft.DotNet.Cli.Utils;
 using Microsoft.Extensions.CommandLineUtils;
-using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Tools.Internal;
 
 namespace Microsoft.Extensions.SecretManager.Tools.Internal
 {
@@ -21,7 +20,7 @@ namespace Microsoft.Extensions.SecretManager.Tools.Internal
             {
                 if (keyArg.Value == null)
                 {
-                    throw new GracefulException("Missing parameter value for 'name'.\nUse the '--help' flag to see info.");
+                    throw new CommandParsingException(command, Resources.FormatError_MissingArgument("name"));
                 }
 
                 options.Command = new RemoveCommand(keyArg.Value);
@@ -38,7 +37,7 @@ namespace Microsoft.Extensions.SecretManager.Tools.Internal
         {
             if (!context.SecretStore.ContainsKey(_keyName))
             {
-                context.Logger.LogWarning(Resources.Error_Missing_Secret, _keyName);
+                context.Reporter.Warn(Resources.FormatError_Missing_Secret(_keyName));
             }
             else
             {

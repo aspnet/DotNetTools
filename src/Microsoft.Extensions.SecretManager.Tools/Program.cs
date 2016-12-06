@@ -3,16 +3,14 @@
 
 using System;
 using System.IO;
-using Microsoft.DotNet.Cli.Utils;
-using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.CommandLineUtils;
 using Microsoft.Extensions.SecretManager.Tools.Internal;
+using Microsoft.Extensions.Tools.Internal;
 
 namespace Microsoft.Extensions.SecretManager.Tools
 {
     public class Program
     {
-        private ILogger _logger;
-        private CommandOutputProvider _loggerProvider;
         private readonly IConsole _console;
         private readonly string _workingDirectory;
 
@@ -29,39 +27,6 @@ namespace Microsoft.Extensions.SecretManager.Tools
         {
             _console = console;
             _workingDirectory = workingDirectory;
-
-            var loggerFactory = new LoggerFactory();
-            CommandOutputProvider = new CommandOutputProvider();
-            loggerFactory.AddProvider(CommandOutputProvider);
-            Logger = loggerFactory.CreateLogger<Program>();
-        }
-
-        public ILogger Logger
-        {
-            get { return _logger; }
-            set
-            {
-                if (value == null)
-                {
-                    throw new ArgumentNullException("value");
-                }
-
-                _logger = value;
-            }
-        }
-
-        public CommandOutputProvider CommandOutputProvider
-        {
-            get { return _loggerProvider; }
-            set
-            {
-                if (value == null)
-                {
-                    throw new ArgumentNullException("value");
-                }
-
-                _loggerProvider = value;
-            }
         }
 
         public bool TryRun(string[] args, out int returnCode)
@@ -73,20 +38,9 @@ namespace Microsoft.Extensions.SecretManager.Tools
             }
             catch (Exception exception)
             {
-                if (exception is GracefulException)
-                {
-                    if (exception.InnerException != null)
-                    {
-                        Logger.LogInformation(exception.InnerException.Message);
-                    }
-
-                    Logger.LogError(exception.Message);
-                }
-                else
-                {
-                    Logger.LogDebug(exception.ToString());
-                    Logger.LogCritical(Resources.Error_Command_Failed, exception.Message);
-                }
+                var reporter = CreateReporter(verbose: true);
+                reporter.Verbose(exception.ToString());
+                reporter.Error(Resources.FormatError_Command_Failed(exception.Message));
                 returnCode = 1;
                 return false;
             }
@@ -94,7 +48,16 @@ namespace Microsoft.Extensions.SecretManager.Tools
 
         internal int RunInternal(params string[] args)
         {
-            var options = CommandLineOptions.Parse(args, _console);
+            CommandLineOptions options;
+            try
+            {
+                options = CommandLineOptions.Parse(args, _console);
+            }
+            catch (CommandParsingException ex)
+            {
+                CreateReporter(verbose: false).Error(ex.Message);
+                return 1;
+            }
 
             if (options == null)
             {
@@ -106,26 +69,62 @@ namespace Microsoft.Extensions.SecretManager.Tools
                 return 2;
             }
 
-            if (options.IsVerbose)
+            var reporter = CreateReporter(options.IsVerbose);
+
+            string userSecretsId;
+            try
             {
-                CommandOutputProvider.LogLevel = LogLevel.Debug;
+                userSecretsId = ResolveId(options, reporter);
+            }
+            catch (Exception ex) when (ex is InvalidOperationException || ex is FileNotFoundException)
+            {
+                reporter.Error(ex.Message);
+                return 1;
             }
 
-            var userSecretsId = ResolveId(options);
-            var store = new SecretsStore(userSecretsId, Logger);
-            var context = new Internal.CommandContext(store, Logger, _console);
+            var store = new SecretsStore(userSecretsId, reporter);
+            var context = new Internal.CommandContext(store, reporter, _console);
             options.Command.Execute(context);
             return 0;
         }
 
-        internal string ResolveId(CommandLineOptions options)
+        private IReporter CreateReporter(bool verbose)
+        {
+            return new ReporterBuilder()
+                .WithConsole(_console)
+                .Verbose(f =>
+                {
+                    f.When(() => verbose);
+                    if (!_console.IsOutputRedirected)
+                    {
+                        f.WithColor(ConsoleColor.DarkGray);
+                    }
+                })
+                .Warn(f =>
+                {
+                    if (!_console.IsOutputRedirected)
+                    {
+                        f.WithColor(ConsoleColor.Yellow);
+                    }
+                })
+                .Error(f =>
+                {
+                    if (!_console.IsErrorRedirected)
+                    {
+                        f.WithColor(ConsoleColor.Red);
+                    }
+                })
+                .Build();
+        }
+
+        internal string ResolveId(CommandLineOptions options, IReporter reporter)
         {
             if (!string.IsNullOrEmpty(options.Id))
             {
                 return options.Id;
             }
 
-            using (var resolver = new ProjectIdResolver(Logger, _workingDirectory))
+            using (var resolver = new ProjectIdResolver(reporter, _workingDirectory))
             {
                 return resolver.Resolve(options.Project, options.Configuration);
             }
