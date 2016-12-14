@@ -1,6 +1,6 @@
 <Project>
   <PropertyGroup>
-    <BuildDependsOn>$(BuildDependsOn);EnsureInitialized</BuildDependsOn>
+    <BuildDependsOn>EnsureInitialized;$(BuildDependsOn)</BuildDependsOn>
   </PropertyGroup>
   <Target Name="EnsureInitialized"
           Condition="!Exists('$(MSBuildThisFileDirectory)..\.build\common.props')">
