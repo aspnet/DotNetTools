@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using Microsoft.AspNetCore.Testing.xunit;
 using Microsoft.Extensions.SecretManager.Tests;
 using Microsoft.Extensions.SecretManager.Tools;
 using Xunit;
@@ -18,7 +19,7 @@ namespace Microsoft.Extensions.Configuration.UserSecrets.Tests
                                 .AddUserSecrets(userSecretsId: Guid.NewGuid().ToString());
         }
 
-        [Fact]
+        [ConditionalFact (Skip = "Obsolete API")]
         public void AddUserSecrets_Does_Not_Fail_On_Non_Existing_File()
         {
             var projectPath = UserSecretHelper.GetTempSecretProject();
@@ -30,7 +31,7 @@ namespace Microsoft.Extensions.Configuration.UserSecrets.Tests
             UserSecretHelper.DeleteTempSecretProject(projectPath);
         }
 
-        [Fact]
+        [ConditionalFact (Skip = "Obsolete API")]
         public void AddUserSecrets_With_An_Existing_Secret_File()
         {
             string userSecretsId;

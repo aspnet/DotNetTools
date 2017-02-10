@@ -1,11 +1,15 @@
 {
   "buildOptions": {
     "warningsAsErrors": true,
+    "nowarn": [
+      "CS0618" // Tests using obsolete APIs are skipped.
+    ],
     "keyFile": "../../tools/Key.snk"
   },
   "dependencies": {
     "dotnet-test-xunit": "1.0.0-rc3-000000-01",
-    "Microsoft.Extensions.SecretManager.Tools": "1.0.0-preview4-final",
+    "Microsoft.AspNetCore.Testing": "1.0.1",
+    "Microsoft.Extensions.SecretManager.Tools": "1.0.0-preview4-update1",
     "xunit": "2.1.0"
   },
   "testRunner": "xunit",
