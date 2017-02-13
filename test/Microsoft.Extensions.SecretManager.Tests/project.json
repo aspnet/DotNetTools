@@ -5,7 +5,7 @@
   },
   "dependencies": {
     "dotnet-test-xunit": "1.0.0-rc3-000000-01",
-    "Microsoft.Extensions.SecretManager.Tools": "1.0.0-preview4-final",
+    "Microsoft.Extensions.SecretManager.Tools": "1.0.0-preview4-update1",
     "xunit": "2.1.0"
   },
   "testRunner": "xunit",
@@ -13,7 +13,7 @@
     "netcoreapp1.0": {
       "dependencies": {
         "Microsoft.NETCore.App": {
-          "version": "1.0.3",
+          "version": "1.0.4",
           "type": "platform"
         },
         "System.Diagnostics.Process": "4.1.0"

@@ -10,7 +10,7 @@
       "type": "build",
       "version": "1.0.1"
     },
-    "Microsoft.DotNet.Watcher.Core": "1.0.0-preview4-final",
+    "Microsoft.DotNet.Watcher.Core": "1.0.0-preview4-update1",
     "Newtonsoft.Json": "9.0.1",
     "System.Threading.Thread": "4.0.0",
     "xunit": "2.1.0"
@@ -24,7 +24,7 @@
       "dependencies": {
         "Microsoft.NETCore.App": {
           "type": "platform",
-          "version": "1.0.3"
+          "version": "1.0.4"
         }
       }
     }
