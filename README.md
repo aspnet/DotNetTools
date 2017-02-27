@@ -4,11 +4,11 @@ DotNetTools
 [![Travis build status](https://img.shields.io/travis/aspnet/DotNetTools.svg?label=travis-ci&branch=dev&style=flat-square)](https://travis-ci.org/aspnet/DotNetTools/branches)
 [![AppVeyor build status](https://img.shields.io/appveyor/ci/aspnetci/DotNetTools/dev.svg?label=appveyor&style=flat-square)](https://ci.appveyor.com/project/aspnetci/DotNetTools/branch/dev)
 
-This project is part of ASP.NET Core. You can find samples, documentation and getting started instructions for ASP.NET Core at the [Home](https://github.com/aspnet/home) repo.
+This project is part of ASP.NET Core. You can find samples, documentation and getting started instructions for ASP.NET Core at <https://docs.asp.net>.
 
 ## Projects
 
-The repository contains command-line tools for the .NET Core CLI.
+The repository contains command-line tools for the .NET Core CLI. Follow the links below for more details on each tool.
 
  - [dotnet-watch](src/Microsoft.DotNet.Watcher.Tools/) (Microsoft.DotNet.Watcher.Tools)
  - [dotnet-user-secrets](src/Microsoft.Extensions.SecretManager.Tools/) (Microsoft.Extensions.SecretManager.Tools)
@@ -16,7 +16,7 @@ The repository contains command-line tools for the .NET Core CLI.
 
 ## How to Install
 
-Install tools by editing your \*.csproj file and adding a DotNetCliToolReference with the package name and version.
+Install tools by editing your \*.csproj file and adding a `DotNetCliToolReference` with the package name and version.
 
 ```xml
   <ItemGroup>
