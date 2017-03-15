@@ -3,8 +3,8 @@ Launch any command with dotnet-watch
 
 ## Prerequisites
 
-1. Install .NET Core command line from <https://dot.net/core>
-2. Install NodeJS
+1. Install .NET Core command line. <https://dot.net/core>
+2. Install NodeJS. <https://nodejs.org>
 
 ## Usage
 

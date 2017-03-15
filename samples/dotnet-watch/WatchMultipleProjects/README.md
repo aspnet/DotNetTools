@@ -3,7 +3,7 @@ Watch multiple projects with dotnet-watch
 
 ## Prerequisites
 
-1. Install .NET Core command line from <https://dot.net/core>
+Install .NET Core command line. <https://dot.net/core>
 
 ## Usage
 
