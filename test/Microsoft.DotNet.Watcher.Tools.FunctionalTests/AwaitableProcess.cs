@@ -19,6 +19,8 @@ namespace Microsoft.DotNet.Watcher.Tools.FunctionalTests
     {
         private Process _process;
         private readonly ProcessSpec _spec;
+        private readonly TaskCompletionSource<string> _tcs = new TaskCompletionSource<string>();
+        private readonly CancellationTokenSource _cts = new CancellationTokenSource();
         private BufferBlock<string> _source;
         private ITestOutputHelper _logger;
         private int _reading;
@@ -36,20 +38,28 @@ namespace Microsoft.DotNet.Watcher.Tools.FunctionalTests
                 throw new InvalidOperationException("Already started");
             }
 
-            var psi = new ProcessStartInfo
+            _process = new Process
             {
-                UseShellExecute = false,
-                FileName = _spec.Executable,
-                WorkingDirectory = _spec.WorkingDirectory,
-                Arguments = ArgumentEscaper.EscapeAndConcatenate(_spec.Arguments),
-                RedirectStandardOutput = true,
-                RedirectStandardError = true
+                StartInfo = new ProcessStartInfo
+                {
+                    UseShellExecute = false,
+                    FileName = _spec.Executable,
+                    WorkingDirectory = _spec.WorkingDirectory,
+                    Arguments = ArgumentEscaper.EscapeAndConcatenate(_spec.Arguments),
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true
+                }
             };
-            _process = Process.Start(psi);
-            _logger.WriteLine($"{DateTime.Now}: process start: '{psi.FileName} {psi.Arguments}'");
+            _process.EnableRaisingEvents = true;
+            _process.Exited += OnExited;
+            _process.Start();
+
+            _logger.WriteLine($"{DateTime.Now}: process start: '{_process.StartInfo.FileName} {_process.StartInfo.Arguments}'");
             StartProcessingOutput(_process.StandardOutput);
-            StartProcessingOutput(_process.StandardError);;
+            StartProcessingOutput(_process.StandardError); ;
         }
+
+        public Task Task => _tcs.Task;
 
         public Task<string> GetOutputLineAsync(string message)
             => GetOutputLineAsync(m => message == m);
@@ -58,9 +68,9 @@ namespace Microsoft.DotNet.Watcher.Tools.FunctionalTests
         {
             while (!_source.Completion.IsCompleted)
             {
-                while (await _source.OutputAvailableAsync())
+                while (await _source.OutputAvailableAsync(_cts.Token))
                 {
-                    var next = await _source.ReceiveAsync();
+                    var next = await _source.ReceiveAsync(_cts.Token);
                     _logger.WriteLine($"{DateTime.Now}: recv: '{next}'");
                     if (predicate(next))
                     {
@@ -77,9 +87,9 @@ namespace Microsoft.DotNet.Watcher.Tools.FunctionalTests
             var lines = new List<string>();
             while (!_source.Completion.IsCompleted)
             {
-                while (await _source.OutputAvailableAsync())
+                while (await _source.OutputAvailableAsync(_cts.Token))
                 {
-                    var next = await _source.ReceiveAsync();
+                    var next = await _source.ReceiveAsync(_cts.Token);
                     _logger.WriteLine($"{DateTime.Now}: recv: '{next}'");
                     lines.Add(next);
                 }
@@ -91,20 +101,26 @@ namespace Microsoft.DotNet.Watcher.Tools.FunctionalTests
         {
             _source = _source ?? new BufferBlock<string>();
             Interlocked.Increment(ref _reading);
-            Task.Run(() =>
+            Task.Run(async () =>
             {
-                string line;
-                while ((line = streamReader.ReadLine()) != null)
+                Task<string> line;
+                while ((line = await Task.WhenAny(_tcs.Task, streamReader.ReadLineAsync())).Result != null)
                 {
-                    _logger.WriteLine($"{DateTime.Now}: post: '{line}'");
-                    _source.Post(line);
+                    _logger.WriteLine($"{DateTime.Now}: post: '{line.Result}'");
+                    _source.Post(line.Result);
                 }
 
-                if (Interlocked.Decrement(ref _reading) <= 0)
+                if (Interlocked.Decrement(ref _reading) <= 0 || _tcs.Task.IsCompleted || _tcs.Task.IsCanceled)
                 {
                     _source.Complete();
                 }
             }).ConfigureAwait(false);
+        }
+
+        private void OnExited(object sender, EventArgs args)
+        {
+            _tcs.TrySetResult(null);
+            _cts.Cancel();
         }
 
         public void Dispose()
@@ -112,7 +128,10 @@ namespace Microsoft.DotNet.Watcher.Tools.FunctionalTests
             if (_process != null && !_process.HasExited)
             {
                 _process.KillTree();
+                _process.Exited -= OnExited;
             }
+
+            _cts.Dispose();
         }
     }
 }

@@ -21,7 +21,6 @@ namespace Microsoft.DotNet.Watcher.Tools.FunctionalTests
         private string _appName;
         private bool _prepared;
 
-
         public WatchableApp(string appName, ITestOutputHelper logger)
         {
             _logger = logger;
@@ -52,20 +51,8 @@ namespace Microsoft.DotNet.Watcher.Tools.FunctionalTests
             return int.Parse(pid);
         }
 
-        public void Prepare()
-        {
-            Scenario.Restore(_appName);
-            Scenario.Build(_appName);
-            _prepared = true;
-        }
-
         public void Start(IEnumerable<string> arguments, [CallerMemberName] string name = null)
         {
-            if (!_prepared)
-            {
-                throw new InvalidOperationException("Call .Prepare() first");
-            }
-
             var args = Scenario
                 .GetDotnetWatchArguments()
                 .Concat(arguments);
@@ -86,9 +73,21 @@ namespace Microsoft.DotNet.Watcher.Tools.FunctionalTests
 
         public async Task StartWatcherAsync(string[] arguments, [CallerMemberName] string name = null)
         {
+            if (!_prepared)
+            {
+                await PrepareAsync();
+            }
+
             var args = new[] { "run", "--" }.Concat(arguments);
             Start(args, name);
             await Process.GetOutputLineAsync(StartedMessage);
+        }
+
+        private async Task PrepareAsync()
+        {
+            await Scenario.RestoreAsync(_appName).OrTimeout(120);
+            await Scenario.BuildAsync(_appName).OrTimeout();
+            _prepared = true;
         }
 
         public virtual void Dispose()

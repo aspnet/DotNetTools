@@ -17,13 +17,12 @@ namespace Microsoft.DotNet.Watcher.Tools.FunctionalTests
         public NoDepsAppTests(ITestOutputHelper logger)
         {
             _app = new WatchableApp("NoDepsApp", logger);
-            _app.Prepare();
         }
 
         [Fact]
         public async Task RestartProcessOnFileChange()
         {
-            await _app.StartWatcherAsync(new[] { "--no-exit" }).OrTimeout();
+            await _app.StartWatcherAsync(new[] { "--no-exit" });
             var pid = await _app.GetProcessId().OrTimeout();
 
             // Then wait for it to restart when we change a file
@@ -42,7 +41,7 @@ namespace Microsoft.DotNet.Watcher.Tools.FunctionalTests
         [Fact]
         public async Task RestartProcessThatTerminatesAfterFileChange()
         {
-            await _app.StartWatcherAsync().OrTimeout();
+            await _app.StartWatcherAsync();
             var pid = await _app.GetProcessId().OrTimeout();
             await _app.HasExited().OrTimeout(); // process should exit after run
 
