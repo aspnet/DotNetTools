@@ -16,13 +16,12 @@ namespace Microsoft.DotNet.Watcher.Tools.FunctionalTests
         public AppWithDepsTests(ITestOutputHelper logger)
         {
             _app = new AppWithDeps(logger);
-            _app.Prepare();
         }
 
         [Fact]
         public async Task ChangeFileInDependency()
         {
-            await _app.StartWatcherAsync().OrTimeout();
+            await _app.StartWatcherAsync();
 
             var fileToChange = Path.Combine(_app.DependencyFolder, "Foo.cs");
             var programCs = File.ReadAllText(fileToChange);

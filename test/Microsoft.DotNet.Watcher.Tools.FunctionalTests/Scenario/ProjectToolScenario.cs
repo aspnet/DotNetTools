@@ -1,13 +1,15 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using Microsoft.Extensions.Tools.Internal;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.DotNet.Watcher.Internal;
+using Microsoft.Extensions.Tools.Internal;
 using Xunit.Abstractions;
 
 namespace Microsoft.DotNet.Watcher.Tools.FunctionalTests
@@ -55,52 +57,31 @@ namespace Microsoft.DotNet.Watcher.Tools.FunctionalTests
             }
         }
 
-        public void Restore(string project)
+        public Task RestoreAsync(string project)
         {
             _logger?.WriteLine($"Restoring msbuild project in {project}");
-            ExecuteCommand(project, "restore");
+            return ExecuteCommandAync(project, "restore");
         }
 
-        public void Build(string project)
+        public Task BuildAsync(string project)
         {
             _logger?.WriteLine($"Building {project}");
-            ExecuteCommand(project, "build");
+            return ExecuteCommandAync(project, "build");
         }
 
-        private void ExecuteCommand(string project, params string[] arguments)
+        private Task ExecuteCommandAync(string project, params string[] arguments)
         {
             project = Path.Combine(WorkFolder, project);
-            var psi = new ProcessStartInfo
+            var spec = new ProcessSpec
             {
-                FileName = DotNetMuxer.MuxerPathOrDefault(),
-                Arguments = ArgumentEscaper.EscapeAndConcatenate(arguments),
+                Executable = DotNetMuxer.MuxerPathOrDefault(),
                 WorkingDirectory = project,
-                RedirectStandardOutput = true,
-                RedirectStandardError = true
+                Arguments = arguments,
             };
 
-            var process = new Process()
-            {
-                StartInfo = psi,
-                EnableRaisingEvents = true
-            };
-
-            void WriteLine(object sender, DataReceivedEventArgs args)
-              => _logger.WriteLine(args.Data);
-
-            process.ErrorDataReceived += WriteLine;
-            process.OutputDataReceived += WriteLine;
-
+            var process = new AwaitableProcess(spec, _logger);
             process.Start();
-            process.WaitForExit();
-
-            process.ErrorDataReceived -= WriteLine;
-            process.OutputDataReceived -= WriteLine;
-
-            if (process.ExitCode != 0)
-            {
-                throw new InvalidOperationException($"Exit code {process.ExitCode}");
-            }
+            return process.Task;
         }
 
         private void CreateTestDirectory()

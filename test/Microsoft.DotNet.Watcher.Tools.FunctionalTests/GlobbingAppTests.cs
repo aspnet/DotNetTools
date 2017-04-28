@@ -17,7 +17,6 @@ namespace Microsoft.DotNet.Watcher.Tools.FunctionalTests
         public GlobbingAppTests(ITestOutputHelper logger)
         {
             _app = new GlobbingApp(logger);
-            _app.Prepare();
         }
 
         [Theory]
@@ -25,7 +24,7 @@ namespace Microsoft.DotNet.Watcher.Tools.FunctionalTests
         [InlineData(false)]
         public async Task ChangeCompiledFile(bool usePollingWatcher)
         {
-            await _app.StartWatcherAsync().OrTimeout();
+            await _app.StartWatcherAsync();
 
             var types = await _app.GetCompiledAppDefinedTypes().OrTimeout();
             Assert.Equal(2, types);
@@ -42,7 +41,7 @@ namespace Microsoft.DotNet.Watcher.Tools.FunctionalTests
         [Fact(Skip = "Broken. See https://github.com/aspnet/DotNetTools/issues/212")]
         public async Task AddCompiledFile()
         {
-            await _app.StartWatcherAsync().OrTimeout();
+            await _app.StartWatcherAsync();
 
             var types = await _app.GetCompiledAppDefinedTypes().OrTimeout();
             Assert.Equal(2, types);
@@ -58,7 +57,7 @@ namespace Microsoft.DotNet.Watcher.Tools.FunctionalTests
         [Fact]
         public async Task DeleteCompiledFile()
         {
-            await _app.StartWatcherAsync().OrTimeout();
+            await _app.StartWatcherAsync();
 
             var types = await _app.GetCompiledAppDefinedTypes().OrTimeout();
             Assert.Equal(2, types);
@@ -74,7 +73,7 @@ namespace Microsoft.DotNet.Watcher.Tools.FunctionalTests
         [Fact]
         public async Task DeleteSourceFolder()
         {
-            await _app.StartWatcherAsync().OrTimeout();
+            await _app.StartWatcherAsync();
 
             var types = await _app.GetCompiledAppDefinedTypes().OrTimeout();
             Assert.Equal(2, types);
@@ -90,7 +89,7 @@ namespace Microsoft.DotNet.Watcher.Tools.FunctionalTests
         [Fact]
         public async Task RenameCompiledFile()
         {
-            await _app.StartWatcherAsync().OrTimeout();
+            await _app.StartWatcherAsync();
 
             var oldFile = Path.Combine(_app.SourceDirectory, "include", "Foo.cs");
             var newFile = Path.Combine(_app.SourceDirectory, "include", "Foo_new.cs");
@@ -102,7 +101,7 @@ namespace Microsoft.DotNet.Watcher.Tools.FunctionalTests
         [Fact]
         public async Task ChangeExcludedFile()
         {
-            await _app.StartWatcherAsync().OrTimeout();
+            await _app.StartWatcherAsync();
 
             var changedFile = Path.Combine(_app.SourceDirectory, "exclude", "Baz.cs");
             File.WriteAllText(changedFile, "");
