@@ -38,16 +38,16 @@ namespace Microsoft.DotNet.Watcher.Tools.FunctionalTests
         public string SourceDirectory { get; }
 
         public Task HasRestarted()
-            => Process.GetOutputLineAsync(StartedMessage);
+            => Process.GetOutputLineAsync(StartedMessage).OrTimeout();
 
         public Task HasExited()
-            => Process.GetOutputLineAsync(ExitingMessage);
+            => Process.GetOutputLineAsync(ExitingMessage).OrTimeout();
 
         public bool UsePollingWatcher { get; set; }
 
         public async Task<int> GetProcessId()
         {
-            var line = await Process.GetOutputLineAsync(l => l.StartsWith("PID ="));
+            var line = await Process.GetOutputLineAsync(l => l.StartsWith("PID =")).OrTimeout();
             var pid = line.Split('=').Last();
             return int.Parse(pid);
         }
@@ -93,7 +93,7 @@ namespace Microsoft.DotNet.Watcher.Tools.FunctionalTests
 
             var args = new[] { "run", "--" }.Concat(arguments);
             Start(args, name);
-            await Process.GetOutputLineAsync(StartedMessage);
+            await Process.GetOutputLineAsync(StartedMessage).OrTimeout();
         }
 
         public virtual void Dispose()
