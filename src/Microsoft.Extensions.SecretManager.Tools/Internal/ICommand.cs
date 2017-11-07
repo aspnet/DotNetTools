@@ -3,7 +3,7 @@
 
 namespace Microsoft.Extensions.SecretManager.Tools.Internal
 {
-    public interface ICommand
+    internal interface ICommand
     {
         void Execute(CommandContext context);
     }

@@ -11,7 +11,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="..\..\shared\**\*.cs" />
+    <Compile Include="..\..\shared\Common\**\*.cs" />
     <Content Include="prefercliruntime" PackagePath="\prefercliruntime" />
     <Content Include="toolassets\DotNetWatch.targets" CopyToOutputDirectory="PreserveNewest" PackagePath="%(Identity)" />
   </ItemGroup>

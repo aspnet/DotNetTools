@@ -5,7 +5,7 @@ using Microsoft.Extensions.Tools.Internal;
 
 namespace Microsoft.Extensions.SecretManager.Tools.Internal
 {
-    public class CommandContext
+    internal class CommandContext
     {
         public CommandContext(
             SecretsStore store,
