@@ -3,7 +3,7 @@
     <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
   </PropertyGroup>
   <PropertyGroup Label="Package Versions">
-    <InternalAspNetCoreSdkPackageVersion>2.1.0-preview1-15554</InternalAspNetCoreSdkPackageVersion>
+    <InternalAspNetCoreSdkPackageVersion>2.1.0-preview1-15555</InternalAspNetCoreSdkPackageVersion>
     <MicrosoftAspNetCoreCertificatesGenerationSourcesPackageVersion>2.1.0-preview1-27522</MicrosoftAspNetCoreCertificatesGenerationSourcesPackageVersion>
     <MicrosoftAspNetCoreTestingPackageVersion>2.1.0-preview1-27522</MicrosoftAspNetCoreTestingPackageVersion>
     <MicrosoftExtensionsCommandLineUtilsSourcesPackageVersion>2.1.0-preview1-27522</MicrosoftExtensionsCommandLineUtilsSourcesPackageVersion>
