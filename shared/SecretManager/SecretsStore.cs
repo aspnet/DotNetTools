@@ -13,6 +13,12 @@ using Newtonsoft.Json.Linq;
 
 namespace Microsoft.Extensions.SecretManager
 {
+    /// <summary>
+    /// Provides read and write access to the secrets.json file for local user secrets.
+    /// This is not thread-safe.
+    /// This object is meant to have a short lifetime.
+    /// When calling <see cref="Save"/>, this will overwrite the secrets.json file. It does not check for concurrency issues if another process has edited this file.
+    /// </summary>
     internal class SecretsStore : IReadOnlyDictionary<string, string>
     {
         private readonly Dictionary<string, string> _secrets;
@@ -81,10 +87,6 @@ namespace Microsoft.Extensions.SecretManager
         protected virtual Dictionary<string, string> Load(string userSecretsId)
         {
             var secretsFilePath = PathHelper.GetSecretsPathFromSecretsId(userSecretsId);
-
-            // workaround bug in configuration that causes the JSON loader to fail
-            var secretDir = Path.GetDirectoryName(secretsFilePath);
-            Directory.CreateDirectory(secretDir);
 
             return new ConfigurationBuilder()
                 .AddJsonFile(secretsFilePath, optional: true)

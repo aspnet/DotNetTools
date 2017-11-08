@@ -20,8 +20,8 @@ namespace Microsoft.Extensions.SecretManager.VisualStudio
 
             _secretManager = new Lazy<ProjectLocalSecretsManager>(() =>
             {
-                var properties = _project.Services.ProjectPropertiesProvider.GetCommonProperties();
-                return new ProjectLocalSecretsManager(properties);
+                var propertiesProvider = _project.Services.ProjectPropertiesProvider;
+                return new ProjectLocalSecretsManager(propertiesProvider);
             });
         }
 
