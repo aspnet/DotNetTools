@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.ProjectSystem.Properties;
 using Microsoft.VisualStudio.Shell;
+using Microsoft.VisualStudio.Threading;
 using Task = System.Threading.Tasks.Task;
 
 namespace Microsoft.Extensions.SecretManager.VisualStudio
@@ -29,7 +30,7 @@ namespace Microsoft.Extensions.SecretManager.VisualStudio
         public async Task AddSecretAsync(string name, string value, CancellationToken cancellationToken = default)
         {
             EnsureKeyNameIsValid(name);
-            var store = await GetOrCreateStoreAsync();
+            var store = await GetStoreAsync();
             if (store.ContainsKey(name))
             {
                 throw new ArgumentException("A secret with this name already exists.", nameof(name));
@@ -44,7 +45,7 @@ namespace Microsoft.Extensions.SecretManager.VisualStudio
         {
             EnsureKeyNameIsValid(name);
 
-            var store = await GetOrCreateStoreAsync();
+            var store = await GetStoreAsync();
 
             store.Set(name, value);
             cancellationToken.ThrowIfCancellationRequested();
@@ -54,26 +55,26 @@ namespace Microsoft.Extensions.SecretManager.VisualStudio
         public async Task<string> GetSecretAsync(string name, CancellationToken cancellationToken = default)
         {
             EnsureKeyNameIsValid(name);
-            var store = await GetOrCreateStoreAsync();
+            var store = await GetStoreAsync();
             return store[name];
         }
 
         public async Task<IReadOnlyCollection<string>> GetSecretNamesAsync(CancellationToken cancellationToken = default)
         {
-            var store = await GetOrCreateStoreAsync();
+            var store = await GetStoreAsync();
             return store.ReadOnlyKeys;
         }
 
         public async Task<IReadOnlyDictionary<string, string>> GetSecretsAsync(CancellationToken cancellationToken = default)
         {
-            return await GetOrCreateStoreAsync();
+            return await GetStoreAsync();
         }
 
         public async Task<bool> RemoveSecretAsync(string name, CancellationToken cancellationToken = default)
         {
             EnsureKeyNameIsValid(name);
 
-            var store = await GetOrCreateStoreAsync();
+            var store = await GetStoreAsync();
 
             var result = store.Remove(name);
 
@@ -96,7 +97,7 @@ namespace Microsoft.Extensions.SecretManager.VisualStudio
             }
         }
 
-        private async Task<SecretsStore> GetOrCreateStoreAsync()
+        private async Task<SecretsStore> GetStoreAsync()
         {
             var userSecretsId = await _propertiesProvider.GetCommonProperties().GetEvaluatedPropertyValueAsync(UserSecretsPropertyName);
 
@@ -108,7 +109,7 @@ namespace Microsoft.Extensions.SecretManager.VisualStudio
 
             // TODO figure out why this API causes compiler error:
             // "Cannot find the interop type that matches the embedded interop type 'Microsoft.VisualStudio.Shell.Interop.IVsTask'."
-            //await TaskScheduler.Default;
+             //await TaskScheduler.Default;
 
             return new SecretsStore(userSecretsId);
         }

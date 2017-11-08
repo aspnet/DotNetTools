@@ -53,18 +53,9 @@ namespace Microsoft.Extensions.SecretManager
 
         IEnumerator IEnumerable.GetEnumerator() => _secrets.GetEnumerator();
 
-        public virtual void Set(string key, string value) => _secrets[key] = value;
+        public void Set(string key, string value) => _secrets[key] = value;
 
-        public virtual bool Remove(string key)
-        {
-            if (_secrets.ContainsKey(key))
-            {
-                _secrets.Remove(key);
-                return true;
-            }
-
-            return false;
-        }
+        public bool Remove(string key) => _secrets.Remove(key);
 
         public virtual void Save()
         {

@@ -1,10 +1,12 @@
-<Project>
+﻿<Project>
   <PropertyGroup>
     <BuildVSIX Condition="'$(BuildVSIX)' ==''">true</BuildVSIX>
     <RestoreDependsOn Condition="'$(OS)'=='Windows_NT' AND '$(BuildVSIX)' == 'true'">$(RestoreDependsOn);RestoreVSIX</RestoreDependsOn>
     <PackageDependsOn Condition="'$(OS)'=='Windows_NT' AND '$(BuildVSIX)' == 'true'">$(PackageDependsOn);PackageVSIX</PackageDependsOn>
     <VSIXName>Microsoft.Extensions.SecretManager.VisualStudio</VSIXName>
     <VSIXProject>$(RepositoryRoot)tooling\SecretManager.VisualStudio\SecretManager.VisualStudio.csproj</VSIXProject>
+    <VSIXOutputPath>$(BuildDir)$(VSIXName).vsix</VSIXOutputPath>
+    <MSBuildArtifactsDir>$(ArtifactsDir)msbuild\</MSBuildArtifactsDir>
   </PropertyGroup>
 
   <Target
@@ -16,7 +18,33 @@
     VisualStudioMSBuildx86Path is set by the GetToolsets target in KoreBuild if a version of VS matching the requirements in korebuild.json is found.
    -->
   <Target Name="RestoreVSIX" DependsOnTargets="GetToolsets">
-    <Exec Command="&quot;$(VisualStudioMSBuildx86Path)&quot; &quot;$(VSIXProject)&quot; /t:Restore /v:m /p:BuildNumber=$(BuildNumber)"
+
+    <PropertyGroup>
+      <VSIXResponseFilePath>$(MSBuildArtifactsDir)vsix-restore.rsp</VSIXResponseFilePath>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <MSBuildArguments Remove="@(MSBuildArguments)" />
+      <MSBuildArguments Include="
+        $(VSIXProject);
+        /t:Restore;
+        /m;
+        /v:m;
+        /p:Configuration=$(Configuration);
+        /p:BuildNumber=$(BuildNumber);
+        /p:PackageReferencePropsPath=$(MSBuildThisFileDirectory)VSIX.props;" />
+      <MSBuildArguments Include="/p:DotNetPackageVersionPropsPath=$(DotNetPackageVersionPropsPath)" Condition="'$(DotNetPackageVersionPropsPath)' != ''" />
+      <MSBuildArguments Include="/p:DotNetRestoreSourcePropsPath=$(DotNetRestoreSourcePropsPath)" Condition="'$(DotNetRestoreSourcePropsPath)' != ''" />
+    </ItemGroup>
+
+    <MakeDir Directories="$(MSBuildArtifactsDir)" />
+
+    <WriteLinesToFile
+      File="$(VSIXResponseFilePath)"
+      Lines="@(MSBuildArguments)"
+      Overwrite="true" />
+
+    <Exec Command="&quot;$(VisualStudioMSBuildx86Path)&quot; @&quot;$(VSIXResponseFilePath)&quot;"
       Condition="'$(VisualStudioMSBuildx86Path)' != ''" />
   </Target>
 
@@ -26,13 +54,12 @@
       Condition="'$(VisualStudioMSBuildx86Path)' == ''" />
 
     <PropertyGroup>
-      <MSBuildArtifactsDir>$(ArtifactsDir)msbuild\</MSBuildArtifactsDir>
       <VSIXLogFilePath>$(MSBuildArtifactsDir)vsix.log</VSIXLogFilePath>
-      <VSIXResponseFilePath>$(MSBuildArtifactsDir)vsix.rsp</VSIXResponseFilePath>
-      <VSIXOutputPath>$(BuildDir)$(VSIXName).vsix</VSIXOutputPath>
+      <VSIXResponseFilePath>$(MSBuildArtifactsDir)vsix-build.rsp</VSIXResponseFilePath>
     </PropertyGroup>
 
     <ItemGroup>
+      <MSBuildArguments Remove="@(MSBuildArguments)" />
       <MSBuildArguments Include="
         $(VSIXProject);
         /m;
@@ -45,14 +72,15 @@
         /p:PackageReferencePropsPath=$(MSBuildThisFileDirectory)VSIX.props;" />
     </ItemGroup>
 
-    <MakeDir Directories="$(MSBuildArtifactsDir)" Condition="!Exists('$(MSBuildArtifactsDir)')" />
+    <MakeDir Directories="$(MSBuildArtifactsDir)" />
 
     <WriteLinesToFile
       File="$(VSIXResponseFilePath)"
       Lines="@(MSBuildArguments)"
       Overwrite="true" />
 
-    <Exec Command="&quot;$(VisualStudioMSBuildx86Path)&quot; @&quot;$(VSIXResponseFilePath)&quot;" />
+    <Exec Command="&quot;$(VisualStudioMSBuildx86Path)&quot; @&quot;$(VSIXResponseFilePath)&quot;"
+      Condition="'$(VisualStudioMSBuildx86Path)' != ''" />
   </Target>
 
 </Project>
