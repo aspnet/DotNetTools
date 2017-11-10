@@ -11,7 +11,18 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="..\..\shared\Common\**\*.cs" Link="shared\%(RecursiveDir)%(FileName)%(Extension)" />
+    <Compile Include="..\..\shared\CliContext.cs" Link="CliContext.cs" />
+    <Compile Include="..\..\shared\CommandLineApplicationExtensions.cs" Link="CommandLineApplicationExtensions.cs" />
+    <Compile Include="..\..\shared\ConsoleReporter.cs" Link="ConsoleReporter.cs" />
+    <Compile Include="..\..\shared\DebugHelper.cs" Link="DebugHelper.cs" />
+    <Compile Include="..\..\shared\Ensure.cs" Link="Ensure.cs" />
+    <Compile Include="..\..\shared\IConsole.cs" Link="IConsole.cs" />
+    <Compile Include="..\..\shared\IReporter.cs" Link="IReporter.cs" />
+    <Compile Include="..\..\shared\NullReporter.cs" Link="NullReporter.cs" />
+    <Compile Include="..\..\shared\PhysicalConsole.cs" Link="PhysicalConsole.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Content Include="prefercliruntime" PackagePath="\prefercliruntime" />
   </ItemGroup>
 

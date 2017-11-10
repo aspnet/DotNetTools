@@ -8,7 +8,7 @@ using Microsoft.VisualStudio.Shell;
 
 namespace Microsoft.VisualStudio.SecretManager
 {
-    internal class SecretManagerFactory 
+    internal class SecretManagerFactory
     {
         private readonly Lazy<ProjectLocalSecretsManager> _secretManager;
         private readonly ConfiguredProject _project;

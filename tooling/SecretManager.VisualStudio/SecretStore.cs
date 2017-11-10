@@ -193,7 +193,7 @@ namespace Microsoft.VisualStudio.SecretManager
                 var bytes = Encoding.Unicode.GetBytes(text);
                 stream.Write(bytes, 0, bytes.Length);
                 stream.Position = 0;
-                // might throw FormatException if JSON is malformed. 
+                // might throw FormatException if JSON is malformed.
                 provider.Load(stream);
             }
 

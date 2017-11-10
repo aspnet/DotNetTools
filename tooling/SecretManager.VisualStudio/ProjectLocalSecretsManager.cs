@@ -12,7 +12,7 @@ using Task = System.Threading.Tasks.Task;
 namespace Microsoft.VisualStudio.SecretManager
 {
     /// <summary>
-    /// Provides an thread-safe access the secrets.json file based on the UserSecretsId property in a configured project. 
+    /// Provides an thread-safe access the secrets.json file based on the UserSecretsId property in a configured project.
     /// </summary>
     internal class ProjectLocalSecretsManager : Shell.IVsProjectSecrets, Shell.SVsProjectLocalSecrets
     {

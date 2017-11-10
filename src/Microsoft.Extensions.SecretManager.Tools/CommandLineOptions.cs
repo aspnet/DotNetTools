@@ -8,7 +8,7 @@ using Microsoft.Extensions.Tools.Internal;
 
 namespace Microsoft.Extensions.SecretManager.Tools
 {
-    internal class CommandLineOptions
+    public class CommandLineOptions
     {
         public ICommand Command { get; set; }
         public string Configuration { get; private set; }

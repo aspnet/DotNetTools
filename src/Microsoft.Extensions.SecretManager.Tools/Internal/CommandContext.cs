@@ -5,10 +5,10 @@ using Microsoft.Extensions.Tools.Internal;
 
 namespace Microsoft.Extensions.SecretManager.Tools.Internal
 {
-    internal class CommandContext
+    public class CommandContext
     {
         public CommandContext(
-            SecretStore store,
+            SecretsStore store,
             IReporter reporter,
             IConsole console)
         {
@@ -19,6 +19,6 @@ namespace Microsoft.Extensions.SecretManager.Tools.Internal
 
         public IConsole Console { get; }
         public IReporter Reporter { get; }
-        public SecretStore SecretStore { get; }
+        public SecretsStore SecretStore { get; }
     }
 }

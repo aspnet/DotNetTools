@@ -1,4 +1,4 @@
-// Copyright (c) .NET Foundation. All rights reserved.
+﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.IO;
@@ -34,7 +34,7 @@ namespace Microsoft.Extensions.SecretManager.Tools.Tests
                 IsInputRedirected = true,
                 In = new StringReader(input)
             };
-            var secretStore = new TestSecretStore();
+            var secretStore = new TestSecretsStore(_output);
             var command = new SetCommand.FromStdInStrategy();
 
             command.Execute(new CommandContext(secretStore, new TestReporter(_output), testConsole));
@@ -61,7 +61,7 @@ namespace Microsoft.Extensions.SecretManager.Tools.Tests
                 IsInputRedirected = true,
                 In = new StringReader(input)
             };
-            var secretStore = new TestSecretStore();
+            var secretStore = new TestSecretsStore(_output);
             var command = new SetCommand.FromStdInStrategy();
 
             command.Execute(new CommandContext(secretStore, new TestReporter(_output), testConsole));
@@ -85,14 +85,14 @@ namespace Microsoft.Extensions.SecretManager.Tools.Tests
             Assert.IsType<SetCommand.ForOneValueStrategy>(options.Command);
         }
 
-        private class TestSecretStore : SecretStore
+        private class TestSecretsStore : SecretsStore
         {
-            public TestSecretStore()
-                : base("xyz")
+            public TestSecretsStore(ITestOutputHelper output)
+                : base("xyz", new TestReporter(output))
             {
             }
 
-            protected override Dictionary<string, string> Load(string userSecretsId)
+            protected override IDictionary<string, string> Load(string userSecretsId)
             {
                 return new Dictionary<string, string>();
             }

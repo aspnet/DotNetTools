@@ -4,7 +4,6 @@
 using System;
 using System.IO;
 using Microsoft.Extensions.CommandLineUtils;
-using Microsoft.Extensions.Configuration.UserSecrets;
 using Microsoft.Extensions.SecretManager.Tools.Internal;
 using Microsoft.Extensions.Tools.Internal;
 
@@ -19,7 +18,8 @@ namespace Microsoft.Extensions.SecretManager.Tools
         {
             DebugHelper.HandleDebugSwitch(ref args);
 
-            new Program(PhysicalConsole.Singleton, Directory.GetCurrentDirectory()).TryRun(args, out int rc);
+            int rc;
+            new Program(PhysicalConsole.Singleton, Directory.GetCurrentDirectory()).TryRun(args, out rc);
             return rc;
         }
 
@@ -82,11 +82,8 @@ namespace Microsoft.Extensions.SecretManager.Tools
                 return 1;
             }
 
-            var store = new SecretStore(userSecretsId);
-
-            reporter.Verbose(Resources.FormatMessage_Secret_File_Path(PathHelper.GetSecretsPathFromSecretsId(userSecretsId)));
-
-            var context = new CommandContext(store, reporter, _console);
+            var store = new SecretsStore(userSecretsId, reporter);
+            var context = new Internal.CommandContext(store, reporter, _console);
             options.Command.Execute(context);
             return 0;
         }
