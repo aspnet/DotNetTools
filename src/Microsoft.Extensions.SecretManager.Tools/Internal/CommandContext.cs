@@ -8,7 +8,7 @@ namespace Microsoft.Extensions.SecretManager.Tools.Internal
     internal class CommandContext
     {
         public CommandContext(
-            SecretsStore store,
+            SecretStore store,
             IReporter reporter,
             IConsole console)
         {
@@ -19,6 +19,6 @@ namespace Microsoft.Extensions.SecretManager.Tools.Internal
 
         public IConsole Console { get; }
         public IReporter Reporter { get; }
-        public SecretsStore SecretStore { get; }
+        public SecretStore SecretStore { get; }
     }
 }

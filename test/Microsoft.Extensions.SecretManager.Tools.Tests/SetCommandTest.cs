@@ -34,7 +34,7 @@ namespace Microsoft.Extensions.SecretManager.Tools.Tests
                 IsInputRedirected = true,
                 In = new StringReader(input)
             };
-            var secretStore = new TestSecretsStore();
+            var secretStore = new TestSecretStore();
             var command = new SetCommand.FromStdInStrategy();
 
             command.Execute(new CommandContext(secretStore, new TestReporter(_output), testConsole));
@@ -61,7 +61,7 @@ namespace Microsoft.Extensions.SecretManager.Tools.Tests
                 IsInputRedirected = true,
                 In = new StringReader(input)
             };
-            var secretStore = new TestSecretsStore();
+            var secretStore = new TestSecretStore();
             var command = new SetCommand.FromStdInStrategy();
 
             command.Execute(new CommandContext(secretStore, new TestReporter(_output), testConsole));
@@ -85,9 +85,9 @@ namespace Microsoft.Extensions.SecretManager.Tools.Tests
             Assert.IsType<SetCommand.ForOneValueStrategy>(options.Command);
         }
 
-        private class TestSecretsStore : SecretsStore
+        private class TestSecretStore : SecretStore
         {
-            public TestSecretsStore()
+            public TestSecretStore()
                 : base("xyz")
             {
             }

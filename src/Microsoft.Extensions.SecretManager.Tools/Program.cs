@@ -82,7 +82,7 @@ namespace Microsoft.Extensions.SecretManager.Tools
                 return 1;
             }
 
-            var store = new SecretsStore(userSecretsId);
+            var store = new SecretStore(userSecretsId);
 
             reporter.Verbose(Resources.FormatMessage_Secret_File_Path(PathHelper.GetSecretsPathFromSecretsId(userSecretsId)));
 

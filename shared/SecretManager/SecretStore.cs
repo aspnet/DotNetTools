@@ -19,11 +19,11 @@ namespace Microsoft.Extensions.SecretManager
     /// This object is meant to have a short lifetime.
     /// When calling <see cref="Save"/>, this will overwrite the secrets.json file. It does not check for concurrency issues if another process has edited this file.
     /// </summary>
-    internal class SecretsStore : IReadOnlyDictionary<string, string>
+    internal class SecretStore : IReadOnlyDictionary<string, string>
     {
         private readonly Dictionary<string, string> _secrets;
 
-        public SecretsStore(string userSecretsId)
+        public SecretStore(string userSecretsId)
         {
            UserSecretsId = userSecretsId;
             _secrets = Load(userSecretsId);
