@@ -5,11 +5,12 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.SecretManager;
 using Microsoft.VisualStudio.ProjectSystem.Properties;
 using Microsoft.VisualStudio.Threading;
 using Task = System.Threading.Tasks.Task;
 
-namespace Microsoft.Extensions.SecretManager.VisualStudio
+namespace Microsoft.VisualStudio.SecretManager
 {
     internal class ProjectLocalSecretsManager : Microsoft.VisualStudio.Shell.IVsProjectSecrets, Microsoft.VisualStudio.Shell.SVsProjectLocalSecrets
     {

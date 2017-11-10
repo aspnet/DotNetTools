@@ -3,7 +3,7 @@
     <BuildVSIX Condition="'$(BuildVSIX)' ==''">true</BuildVSIX>
     <RestoreDependsOn Condition="'$(OS)'=='Windows_NT' AND '$(BuildVSIX)' == 'true'">$(RestoreDependsOn);RestoreVSIX</RestoreDependsOn>
     <PackageDependsOn Condition="'$(OS)'=='Windows_NT' AND '$(BuildVSIX)' == 'true'">$(PackageDependsOn);PackageVSIX</PackageDependsOn>
-    <VSIXName>Microsoft.Extensions.SecretManager.VisualStudio</VSIXName>
+    <VSIXName>Microsoft.VisualStudio.SecretManager</VSIXName>
     <VSIXProject>$(RepositoryRoot)tooling\SecretManager.VisualStudio\SecretManager.VisualStudio.csproj</VSIXProject>
     <VSIXOutputPath>$(BuildDir)$(VSIXName).vsix</VSIXOutputPath>
     <MSBuildArtifactsDir>$(ArtifactsDir)msbuild\</MSBuildArtifactsDir>

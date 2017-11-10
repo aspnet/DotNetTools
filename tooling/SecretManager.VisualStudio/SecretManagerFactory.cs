@@ -6,7 +6,7 @@ using System.Composition;
 using Microsoft.VisualStudio.ProjectSystem;
 using Microsoft.VisualStudio.Shell;
 
-namespace Microsoft.Extensions.SecretManager.VisualStudio
+namespace Microsoft.VisualStudio.SecretManager
 {
     internal class SecretManagerFactory 
     {
