@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.SecretManager;
 using Microsoft.VisualStudio.ProjectSystem.Properties;
 using Microsoft.VisualStudio.Threading;
 using Task = System.Threading.Tasks.Task;
@@ -15,16 +14,18 @@ namespace Microsoft.VisualStudio.SecretManager
     /// <summary>
     /// Provides an thread-safe access the secrets.json file based on the UserSecretsId property in a configured project. 
     /// </summary>
-    internal class ProjectLocalSecretsManager : Microsoft.VisualStudio.Shell.IVsProjectSecrets, Microsoft.VisualStudio.Shell.SVsProjectLocalSecrets
+    internal class ProjectLocalSecretsManager : Shell.IVsProjectSecrets, Shell.SVsProjectLocalSecrets
     {
         private const string UserSecretsPropertyName = "UserSecretsId";
 
         private readonly AsyncSemaphore _semaphore;
         private readonly IProjectPropertiesProvider _propertiesProvider;
+        private readonly Lazy<IServiceProvider> _services;
 
-        public ProjectLocalSecretsManager(IProjectPropertiesProvider propertiesProvider)
+        public ProjectLocalSecretsManager(IProjectPropertiesProvider propertiesProvider, Lazy<IServiceProvider> serviceProvider)
         {
             _propertiesProvider = propertiesProvider ?? throw new ArgumentNullException(nameof(propertiesProvider));
+            _services = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
             _semaphore = new AsyncSemaphore(1);
         }
 
@@ -37,17 +38,16 @@ namespace Microsoft.VisualStudio.SecretManager
             EnsureKeyNameIsValid(name);
             await TaskScheduler.Default;
 
-            using (await _semaphore.EnterAsync())
+            using (await _semaphore.EnterAsync(cancellationToken))
+            using (var store = await GetOrCreateStoreAsync(cancellationToken))
             {
-                var store = await GetOrCreateStoreAsync();
                 if (store.ContainsKey(name))
                 {
                     throw new ArgumentException("A secret with this name already exists.", nameof(name));
                 }
 
                 store.Set(name, value);
-                cancellationToken.ThrowIfCancellationRequested();
-                store.Save();
+                await store.SaveAsync(cancellationToken);
             }
         }
 
@@ -56,13 +56,11 @@ namespace Microsoft.VisualStudio.SecretManager
             EnsureKeyNameIsValid(name);
             await TaskScheduler.Default;
 
-            using (await _semaphore.EnterAsync())
+            using (await _semaphore.EnterAsync(cancellationToken))
+            using (var store = await GetOrCreateStoreAsync(cancellationToken))
             {
-                var store = await GetOrCreateStoreAsync();
-
                 store.Set(name, value);
-                cancellationToken.ThrowIfCancellationRequested();
-                store.Save();
+                await store.SaveAsync(cancellationToken);
             }
         }
 
@@ -71,10 +69,10 @@ namespace Microsoft.VisualStudio.SecretManager
             EnsureKeyNameIsValid(name);
             await TaskScheduler.Default;
 
-            using (await _semaphore.EnterAsync())
+            using (await _semaphore.EnterAsync(cancellationToken))
+            using (var store = await GetOrCreateStoreAsync(cancellationToken))
             {
-                var store = await GetOrCreateStoreAsync();
-                return store[name];
+                return store.Get(name);
             }
         }
 
@@ -82,9 +80,9 @@ namespace Microsoft.VisualStudio.SecretManager
         {
             await TaskScheduler.Default;
 
-            using (await _semaphore.EnterAsync())
+            using (await _semaphore.EnterAsync(cancellationToken))
+            using (var store = await GetOrCreateStoreAsync(cancellationToken))
             {
-                var store = await GetOrCreateStoreAsync();
                 return store.ReadOnlyKeys;
             }
         }
@@ -94,9 +92,10 @@ namespace Microsoft.VisualStudio.SecretManager
         {
             await TaskScheduler.Default;
 
-            using (await _semaphore.EnterAsync())
+            using (await _semaphore.EnterAsync(cancellationToken))
+            using (var store = await GetOrCreateStoreAsync(cancellationToken))
             {
-                return await GetOrCreateStoreAsync();
+                return store.Values;
             }
         }
 
@@ -105,16 +104,16 @@ namespace Microsoft.VisualStudio.SecretManager
             EnsureKeyNameIsValid(name);
             await TaskScheduler.Default;
 
-            using (await _semaphore.EnterAsync())
+            using (await _semaphore.EnterAsync(cancellationToken))
+            using (var store = await GetOrCreateStoreAsync(cancellationToken))
             {
-                var store = await GetOrCreateStoreAsync();
+                if (store.Remove(name))
+                {
+                    await store.SaveAsync(cancellationToken);
+                    return true;
+                }
 
-                var result = store.Remove(name);
-
-                cancellationToken.ThrowIfCancellationRequested();
-                store.Save();
-
-                return result;
+                return false;
             }
         }
 
@@ -131,7 +130,7 @@ namespace Microsoft.VisualStudio.SecretManager
             }
         }
 
-        private async Task<SecretStore> GetOrCreateStoreAsync()
+        private async Task<SecretStore> GetOrCreateStoreAsync(CancellationToken cancellationToken)
         {
             var userSecretsId = await _propertiesProvider.GetCommonProperties().GetEvaluatedPropertyValueAsync(UserSecretsPropertyName);
 
@@ -141,7 +140,9 @@ namespace Microsoft.VisualStudio.SecretManager
                 await _propertiesProvider.GetCommonProperties().SetPropertyValueAsync(UserSecretsPropertyName, userSecretsId);
             }
 
-            return new SecretStore(userSecretsId);
+            var store = new SecretStore(userSecretsId, _services);
+            await store.LoadAsync(cancellationToken);
+            return store;
         }
     }
 }

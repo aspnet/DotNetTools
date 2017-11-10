@@ -14,14 +14,16 @@ namespace Microsoft.VisualStudio.SecretManager
         private readonly ConfiguredProject _project;
 
         [ImportingConstructor]
-        public SecretManagerFactory(ConfiguredProject project)
+        public SecretManagerFactory(ConfiguredProject project, SVsServiceProvider vsServiceProvider)
         {
             _project = project;
+
+            var serviceProvider = new Lazy<IServiceProvider>(() => vsServiceProvider);
 
             _secretManager = new Lazy<ProjectLocalSecretsManager>(() =>
             {
                 var propertiesProvider = _project.Services.ProjectPropertiesProvider;
-                return new ProjectLocalSecretsManager(propertiesProvider);
+                return new ProjectLocalSecretsManager(propertiesProvider, serviceProvider);
             });
         }
 
