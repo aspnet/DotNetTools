@@ -105,6 +105,11 @@ namespace Microsoft.VisualStudio.SecretManager.TestExtension
             Secrets.Clear();
             IsLoaded = false;
 
+            if (_selectedProject == null)
+            {
+                return;
+            }
+
             KeyValuePair<string, string>[] results;
             Exception exception;
 

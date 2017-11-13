@@ -10,7 +10,6 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.Json;
 using Microsoft.Extensions.Configuration.UserSecrets;
 using Microsoft.VisualStudio.Shell.Interop;
@@ -187,22 +186,15 @@ namespace Microsoft.VisualStudio.SecretManager
                 return new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
             }
 
-            var provider = new JsonConfigurationProvider(new JsonConfigurationSource());
+            var parser = new JsonConfigurationFileParser();
             using (var stream = new MemoryStream())
             {
                 var bytes = Encoding.Unicode.GetBytes(text);
                 stream.Write(bytes, 0, bytes.Length);
                 stream.Position = 0;
                 // might throw FormatException if JSON is malformed.
-                provider.Load(stream);
+                return new Dictionary<string, string>(parser.Parse(stream), StringComparer.OrdinalIgnoreCase);
             }
-
-            var root = new ConfigurationRoot(new[] { provider });
-
-            return root
-                .AsEnumerable()
-                .Where(v => v.Value != null)
-                .ToDictionary(i => i.Key, i => i.Value, StringComparer.OrdinalIgnoreCase);
         }
 
         private string GetTextFromInvisibleEditor(IVsInvisibleEditor editor)
