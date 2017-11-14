@@ -141,7 +141,7 @@ namespace Microsoft.VisualStudio.SecretManager
                 await _propertiesProvider.GetCommonProperties().SetPropertyValueAsync(UserSecretsPropertyName, userSecretsId);
             }
 
-            var store = new SecretStore(userSecretsId, _services);
+            var store = new SecretStore(userSecretsId);
             await store.LoadAsync(cancellationToken);
             return store;
         }

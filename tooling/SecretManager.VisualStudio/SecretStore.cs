@@ -3,18 +3,13 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration.Json;
 using Microsoft.Extensions.Configuration.UserSecrets;
-using Microsoft.VisualStudio.Shell.Interop;
-using Microsoft.VisualStudio.Text;
-using Microsoft.VisualStudio.TextManager.Interop;
 using Microsoft.VisualStudio.Threading;
 using Newtonsoft.Json.Linq;
 using Task = System.Threading.Tasks.Task;
@@ -30,18 +25,15 @@ namespace Microsoft.VisualStudio.SecretManager
     internal class SecretStore : IDisposable
     {
         private Dictionary<string, string> _secrets;
-        private IVsInvisibleEditor _editor;
-        private string _path;
-        private Shell.RunningDocumentTable _rdt;
-        private object _document;
+        private string _fileDir;
+        private string _filePath;
         private bool _isDirty;
         private volatile bool _disposed;
-        private readonly Lazy<IServiceProvider> _services;
 
-        public SecretStore(string userSecretsId, Lazy<IServiceProvider> services)
+        public SecretStore(string userSecretsId)
         {
-            _services = services;
-            _path = PathHelper.GetSecretsPathFromSecretsId(userSecretsId);
+            _filePath = PathHelper.GetSecretsPathFromSecretsId(userSecretsId);
+            _fileDir = Path.GetDirectoryName(_filePath);
         }
 
         public IReadOnlyCollection<string> ReadOnlyKeys
@@ -95,32 +87,16 @@ namespace Microsoft.VisualStudio.SecretManager
         public async Task LoadAsync(CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
+            await TaskScheduler.Default;
 
             EnsureNotDisposed();
 
             string text = null;
 
-            _rdt = new Shell.RunningDocumentTable(_services.Value);
-            _document = _rdt.FindDocument(_path);
-
-            await Shell.ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync(cancellationToken);
-
-            if (_document is IVsFullTextScanner fullText)
+            if (File.Exists(_filePath))
             {
-                text = ReadFullText(fullText);
+                text = File.ReadAllText(_filePath);
             }
-
-            if (text == null)
-            {
-                var invisibleEditorManager = (IVsInvisibleEditorManager)_services.Value.GetService(typeof(SVsInvisibleEditorManager));
-
-                int hr = invisibleEditorManager.RegisterInvisibleEditor(_path, null, 0, null, out _editor);
-                Marshal.ThrowExceptionForHR(hr);
-
-                text = GetTextFromInvisibleEditor(_editor);
-            }
-
-            await TaskScheduler.Default;
 
             _secrets = DeserializeJson(text);
         }
@@ -128,31 +104,17 @@ namespace Microsoft.VisualStudio.SecretManager
         public async Task SaveAsync(CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
+            await TaskScheduler.Default;
 
             EnsureNotDisposed();
-
 
             if (!_isDirty)
             {
                 return;
             }
 
-            await TaskScheduler.Default;
-
-            var contents = Stringify(_secrets);
-
-            await Shell.ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync(cancellationToken);
-
-            if (_editor != null)
-            {
-                SaveTextToInvisibleEditor(_editor, contents);
-            }
-            else
-            {
-                SaveTextToBuffer((ITextBuffer)_document, contents);
-            }
-
-            _rdt.SaveFileIfDirty(_path);
+            Directory.CreateDirectory(_fileDir);
+            File.WriteAllText(_filePath, Stringify(_secrets), Encoding.UTF8);
 
             _isDirty = false;
         }
@@ -170,7 +132,7 @@ namespace Microsoft.VisualStudio.SecretManager
             var contents = new JObject();
             if (secrets != null)
             {
-                foreach (var secret in secrets.AsEnumerable())
+                foreach (var secret in secrets)
                 {
                     contents[secret.Key] = secret.Value;
                 }
@@ -189,77 +151,18 @@ namespace Microsoft.VisualStudio.SecretManager
             var parser = new JsonConfigurationFileParser();
             using (var stream = new MemoryStream())
             {
-                var bytes = Encoding.Unicode.GetBytes(text);
+                var bytes = Encoding.UTF8.GetBytes(text);
                 stream.Write(bytes, 0, bytes.Length);
                 stream.Position = 0;
                 // might throw FormatException if JSON is malformed.
                 return new Dictionary<string, string>(parser.Parse(stream), StringComparer.OrdinalIgnoreCase);
             }
         }
-
-        private string GetTextFromInvisibleEditor(IVsInvisibleEditor editor)
-        {
-            var docDataPtr = IntPtr.Zero;
-            try
-            {
-                int hr = editor.GetDocData(0, typeof(IVsFullTextScanner).GUID, out docDataPtr);
-                Marshal.ThrowExceptionForHR(hr);
-
-                var fullText = (IVsFullTextScanner)Marshal.GetObjectForIUnknown(docDataPtr);
-
-                return ReadFullText(fullText);
-            }
-            finally
-            {
-                Marshal.Release(docDataPtr);
-            }
-        }
-
-        private void SaveTextToInvisibleEditor(IVsInvisibleEditor editor, string text)
-        {
-            var docDataPtr = IntPtr.Zero;
-            try
-            {
-                int hr = editor.GetDocData(0, typeof(IVsFullTextScanner).GUID, out docDataPtr);
-                Marshal.ThrowExceptionForHR(hr);
-
-                var buffer = (ITextBuffer)Marshal.GetObjectForIUnknown(docDataPtr);
-                SaveTextToBuffer(buffer, text);
-            }
-            finally
-            {
-                Marshal.Release(docDataPtr);
-            }
-        }
-
-        private static void SaveTextToBuffer(ITextBuffer textBuffer, string text)
-        {
-            textBuffer.Replace(Span.FromBounds(0, textBuffer.CurrentSnapshot.Length), text);
-        }
-
-        private static string ReadFullText(IVsFullTextScanner fullText)
-        {
-            Debug.Assert(fullText != null);
-
-            Marshal.ThrowExceptionForHR(fullText.OpenFullTextScan());
-            Marshal.ThrowExceptionForHR(fullText.FullTextRead(out string text, out int _));
-            Marshal.ThrowExceptionForHR(fullText.CloseFullTextScan());
-            return text;
-        }
-
+        
         public void Dispose()
         {
             if (_disposed) return;
-
             _disposed = true;
-
-            if (_editor != null)
-            {
-                Marshal.ReleaseComObject(_editor);
-            }
-
-            _editor = null;
-            _document = null;
         }
     }
 }

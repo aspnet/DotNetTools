@@ -20,7 +20,7 @@ namespace Microsoft.VisualStudio.SecretManager.TestExtension
     public class SecretManagerViewModel : NotifyPropertyChanged
     {
         private readonly IProjectService _projectService;
-
+        private readonly Random _rand;
         private string _error;
         private bool _isLoaded;
         private ProjectViewModel _selectedProject;
@@ -30,10 +30,16 @@ namespace Microsoft.VisualStudio.SecretManager.TestExtension
             _projectService = projectService;
 
             RefreshCommand = new RelayCommand<object>(Refresh, RefreshIsEnabled);
+            AddCommand = new RelayCommand<object>(Add, IsProjectLoaded);
+            SaveCommand = new RelayCommand<object>(Save, IsProjectLoaded);
             Refresh(null);
+            _rand = new Random();
         }
 
         public RelayCommand<object> RefreshCommand { get; }
+
+        public RelayCommand<object> AddCommand { get; }
+        public RelayCommand<object> SaveCommand { get; }
 
         public ObservableCollection<ProjectViewModel> Projects { get; } = new ObservableCollection<ProjectViewModel>();
 
@@ -100,6 +106,52 @@ namespace Microsoft.VisualStudio.SecretManager.TestExtension
             }
         }
 
+        private bool IsProjectLoaded(object obj) => IsLoaded && SelectedProject != null;
+
+        private void Add(object obj)
+        {
+            Secrets.Add(new KeyValuePair<string, string>("NewKey" + _rand.Next(10_000), "My new totally random and secret test value"));
+        }
+
+        private async void Save(object obj)
+        {
+            Exception exception;
+
+            try
+            {
+                IOleServiceProvider oleServices;
+                var project = (IVsProject)_selectedProject.Project.Services.HostObject;
+                Marshal.ThrowExceptionForHR(project.GetItemContext((uint)VSConstants.VSITEMID.Root, out oleServices));
+                var services = new ServiceProvider(oleServices);
+
+                var projectSecrets = (IVsProjectSecrets)services.GetService(typeof(SVsProjectLocalSecrets));
+                await TaskScheduler.Default;
+
+                if (projectSecrets == null)
+                {
+                    exception = null;
+                }
+                else
+                {
+                    foreach (var secret in Secrets)
+                    {
+                        await projectSecrets.SetSecretAsync(secret.Key, secret.Value).ConfigureAwait(false);
+                    }
+
+                    exception = null;
+                }
+            }
+            catch (Exception ex)
+            {
+                exception = ex;
+            }
+
+            if (exception != null)
+            {
+                Error = exception.ToString();
+            }
+        }
+
         private async void OnSelectedProjectChanged()
         {
             Secrets.Clear();
@@ -122,7 +174,7 @@ namespace Microsoft.VisualStudio.SecretManager.TestExtension
 
                 var projectSecrets = (IVsProjectSecrets)services.GetService(typeof(SVsProjectLocalSecrets));
                 await TaskScheduler.Default;
-                
+
                 if (projectSecrets == null)
                 {
                     results = null;
