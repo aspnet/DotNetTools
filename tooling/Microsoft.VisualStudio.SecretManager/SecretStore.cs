@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -148,14 +147,16 @@ namespace Microsoft.VisualStudio.SecretManager
                 return new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
             }
 
-            var parser = new JsonConfigurationFileParser();
             using (var stream = new MemoryStream())
             {
                 var bytes = Encoding.UTF8.GetBytes(text);
                 stream.Write(bytes, 0, bytes.Length);
                 stream.Position = 0;
+
                 // might throw FormatException if JSON is malformed.
-                return new Dictionary<string, string>(parser.Parse(stream), StringComparer.OrdinalIgnoreCase);
+                var data = JsonConfigurationFileParser.Parse(stream);
+
+                return new Dictionary<string, string>(data, StringComparer.OrdinalIgnoreCase);
             }
         }
         

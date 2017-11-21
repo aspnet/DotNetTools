@@ -10,6 +10,9 @@ namespace Microsoft.VisualStudio.SecretManager
 {
     internal class SecretManagerFactory
     {
+        // This is capability is set in Microsoft.Extensions.Configuration.UserSecrets
+        private const string CapabilityName = "LocalUserSecrets";
+
         private readonly Lazy<ProjectLocalSecretsManager> _secretManager;
         private readonly UnconfiguredProject _project;
 
@@ -28,7 +31,7 @@ namespace Microsoft.VisualStudio.SecretManager
         }
         
         [ExportVsProfferedProjectService(typeof(SVsProjectLocalSecrets))]
-        [AppliesTo(ProjectCapabilities.AlwaysApplicable)]
+        [AppliesTo(CapabilityName)]
         public SVsProjectLocalSecrets ProjectLocalSecretsManager => _secretManager.Value;
     }
 }

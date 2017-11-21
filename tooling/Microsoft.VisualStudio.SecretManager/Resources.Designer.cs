@@ -9,6 +9,15 @@ namespace Microsoft.VisualStudio.SecretManager
     {
         private static readonly ResourceManager _resourceManager
             = new ResourceManager("Microsoft.VisualStudio.SecretManager.Resources", typeof(Resources).GetTypeInfo().Assembly);
+
+        /// <summary>
+        /// A secret with this name already exists.
+        /// </summary>
+        internal static string Error_SecretAlreadyExists
+        {
+            get => GetString("Error_SecretAlreadyExists");
+        }
+
         /// <summary>
         /// Value cannot be null or an empty string.
         /// </summary>

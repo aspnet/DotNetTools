@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.ProjectSystem.Properties;
@@ -44,7 +43,7 @@ namespace Microsoft.VisualStudio.SecretManager
             {
                 if (store.ContainsKey(name))
                 {
-                    throw new ArgumentException("A secret with this name already exists.", nameof(name));
+                    throw new ArgumentException(Resources.Error_SecretAlreadyExists, nameof(name));
                 }
 
                 store.Set(name, value);

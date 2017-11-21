@@ -46,7 +46,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Extensions.Cachin
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.AspNetCore.DeveloperCertificates.Tools", "src\Microsoft.AspNetCore.DeveloperCertificates.Tools\Microsoft.AspNetCore.DeveloperCertificates.Tools.csproj", "{4FED5119-EE5C-4753-88A4-D61BDEB4D6C8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SecretManager.VisualStudio", "tooling\SecretManager.VisualStudio\SecretManager.VisualStudio.csproj", "{5E117F2E-7152-447F-BF47-59F759EEF3A7}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.VisualStudio.SecretManager", "tooling\Microsoft.VisualStudio.SecretManager\Microsoft.VisualStudio.SecretManager.csproj", "{5E117F2E-7152-447F-BF47-59F759EEF3A7}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tooling", "tooling", "{62826851-7D74-4F1E-B7D1-12553B789CD8}"
 EndProject

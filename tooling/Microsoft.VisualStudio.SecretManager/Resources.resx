@@ -140,4 +140,7 @@
 Check that the project for '{0}' has set the 'UserSecretsId' build property.
 If the 'UserSecretsId' property is already set then add a reference to the Microsoft.Extensions.Configuration.UserSecrets package.</value>
   </data>
+  <data name="Error_SecretAlreadyExists" xml:space="preserve">
+    <value>A secret with this name already exists.</value>
+  </data>
 </root>
