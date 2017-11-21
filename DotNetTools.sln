@@ -1,6 +1,6 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.27110.0
+VisualStudioVersion = 15.0.27120.0
 MinimumVisualStudioVersion = 15.0.26730.03
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{66517987-2A5A-4330-B130-207039378FD4}"
 	ProjectSection(SolutionItems) = preProject
@@ -20,12 +20,14 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		build.ps1 = build.ps1
 		build.sh = build.sh
 		CONTRIBUTING.md = CONTRIBUTING.md
+		build\dependencies.props = build\dependencies.props
 		Directory.Build.props = Directory.Build.props
 		Directory.Build.targets = Directory.Build.targets
 		LICENSE.txt = LICENSE.txt
 		NuGet.config = NuGet.config
 		NuGetPackageVerifier.json = NuGetPackageVerifier.json
 		README.md = README.md
+		build\sources.props = build\sources.props
 		version.props = version.props
 	EndProjectSection
 EndProject
@@ -52,7 +54,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tooling", "tooling", "{6282
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.VisualStudio.SecretManager.TestExtension", "tooling\Microsoft.VisualStudio.SecretManager.TestExtension\Microsoft.VisualStudio.SecretManager.TestExtension.csproj", "{965F8820-F809-4081-9090-1AEC903F291B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.AspNetCore.DeveloperCertificates.XPlat", "src\Microsoft.AspNetCore.DeveloperCertificates.XPlat\Microsoft.AspNetCore.DeveloperCertificates.XPlat.csproj", "{96E71881-1465-44F5-B4B7-DF9B370FFD02}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.AspNetCore.DeveloperCertificates.XPlat", "src\Microsoft.AspNetCore.DeveloperCertificates.XPlat\Microsoft.AspNetCore.DeveloperCertificates.XPlat.csproj", "{96E71881-1465-44F5-B4B7-DF9B370FFD02}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -132,8 +134,12 @@ Global
 		{965F8820-F809-4081-9090-1AEC903F291B}.ReleaseNoVSIX|Any CPU.ActiveCfg = Release|Any CPU
 		{96E71881-1465-44F5-B4B7-DF9B370FFD02}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{96E71881-1465-44F5-B4B7-DF9B370FFD02}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{96E71881-1465-44F5-B4B7-DF9B370FFD02}.DebugNoVSIX|Any CPU.ActiveCfg = Debug|Any CPU
+		{96E71881-1465-44F5-B4B7-DF9B370FFD02}.DebugNoVSIX|Any CPU.Build.0 = Debug|Any CPU
 		{96E71881-1465-44F5-B4B7-DF9B370FFD02}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{96E71881-1465-44F5-B4B7-DF9B370FFD02}.Release|Any CPU.Build.0 = Release|Any CPU
+		{96E71881-1465-44F5-B4B7-DF9B370FFD02}.ReleaseNoVSIX|Any CPU.ActiveCfg = Release|Any CPU
+		{96E71881-1465-44F5-B4B7-DF9B370FFD02}.ReleaseNoVSIX|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
