@@ -148,6 +148,9 @@ namespace Microsoft.DotNet.Watcher.Tools.FunctionalTests
 
             var tempNugetConfigFile = Path.Combine(WorkFolder, NugetConfigFileName);
             File.Copy(nugetConfigFilePath, tempNugetConfigFile);
+            File.Copy(Path.Combine(TestProjectSourceRoot, "Directory.Build.props"), Path.Combine(WorkFolder, "Directory.Build.props"));
+            File.Copy(Path.Combine(TestProjectSourceRoot, "Directory.Build.targets"), Path.Combine(WorkFolder, "Directory.Build.targets"));
+            File.Copy(Path.Combine(AppContext.BaseDirectory, "TestSettings.props"), Path.Combine(WorkFolder, "TestSettings.props"));
         }
 
         public IEnumerable<string> GetDotnetWatchArguments()

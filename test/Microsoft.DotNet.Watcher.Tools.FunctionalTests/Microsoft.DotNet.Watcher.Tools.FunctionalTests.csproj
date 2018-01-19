@@ -32,4 +32,14 @@
     <RemoveDir Directories="$(TargetDir)TestProjects" Condition="Exists('$(TargetDir)TestProjects')" />
   </Target>
 
+  <Target Name="GenerateTestContext" BeforeTargets="CoreCompile">
+    <Sdk_GenerateFileFromTemplate
+      TemplateFile="TestSettings.props.in"
+      OutputPath="$(OutputPath)TestSettings.props"
+      Properties="RestoreSources=$([MSBuild]::Escape($(RestoreSources)));
+        MicrosoftNETCoreApp10PackageVersion=$(MicrosoftNETCoreApp10PackageVersion);
+        MicrosoftNETCoreApp11PackageVersion=$(MicrosoftNETCoreApp11PackageVersion);
+        MicrosoftNETCoreApp20PackageVersion=$(MicrosoftNETCoreApp20PackageVersion)" />
+  </Target>
+
 </Project>

@@ -1,0 +1,8 @@
+<Project>
+  <PropertyGroup>
+    <RestoreSources>${RestoreSources}</RestoreSources>
+    <MicrosoftNETCoreApp10PackageVersion>${MicrosoftNETCoreApp10PackageVersion}</MicrosoftNETCoreApp10PackageVersion>
+    <MicrosoftNETCoreApp11PackageVersion>${MicrosoftNETCoreApp11PackageVersion}</MicrosoftNETCoreApp11PackageVersion>
+    <MicrosoftNETCoreApp20PackageVersion>${MicrosoftNETCoreApp20PackageVersion}</MicrosoftNETCoreApp20PackageVersion>
+  </PropertyGroup>
+</Project>

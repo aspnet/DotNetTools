@@ -1,12 +1,16 @@
 ﻿<Project>
   <PropertyGroup>
-    <InternalAspNetCoreSdkPackageVersion>2.0.2-rc1-15526</InternalAspNetCoreSdkPackageVersion>
+    <InternalAspNetCoreSdkPackageVersion>2.0.3-rtm-10002</InternalAspNetCoreSdkPackageVersion>
     <MicrosoftAspNetCoreTestingPackageVersion>2.0.0</MicrosoftAspNetCoreTestingPackageVersion>
     <MicrosoftBuildTasksCorePackageVersion>15.3.409</MicrosoftBuildTasksCorePackageVersion>
     <MicrosoftExtensionsCommandLineUtilsSourcesPackageVersion>2.0.0</MicrosoftExtensionsCommandLineUtilsSourcesPackageVersion>
     <MicrosoftExtensionsConfigurationUserSecretsPackageVersion>2.0.0</MicrosoftExtensionsConfigurationUserSecretsPackageVersion>
     <MicrosoftExtensionsProcessSourcesPackageVersion>2.0.0</MicrosoftExtensionsProcessSourcesPackageVersion>
     <MicrosoftNETTestSdkPackageVersion>15.3.0</MicrosoftNETTestSdkPackageVersion>
+    <NETStandardLibrary20PackageVersion>2.0.1</NETStandardLibrary20PackageVersion>
+    <MicrosoftNETCoreApp10PackageVersion>1.0.8</MicrosoftNETCoreApp10PackageVersion>
+    <MicrosoftNETCoreApp11PackageVersion>1.1.5</MicrosoftNETCoreApp11PackageVersion>
+    <MicrosoftNETCoreApp20PackageVersion>2.0.3</MicrosoftNETCoreApp20PackageVersion>
     <SystemDataSqlClientPackageVersion>4.4.0</SystemDataSqlClientPackageVersion>
     <XunitPackageVersion>2.3.0-beta2-build3683</XunitPackageVersion>
     <XunitRunnerVisualStudioPackageVersion>2.3.0-beta2-build1317</XunitRunnerVisualStudioPackageVersion>
