@@ -47,7 +47,8 @@ namespace Microsoft.DotNet.Watcher.Tools.FunctionalTests
                     RedirectStandardError = true,
                     Environment =
                     {
-                        ["DOTNET_SKIP_FIRST_TIME_EXPERIENCE"] = "true"
+                        ["DOTNET_SKIP_FIRST_TIME_EXPERIENCE"] = "true",
+                        ["MSBUILDDISABLENODEREUSE"] = "1",
                     }
                 }
             };
