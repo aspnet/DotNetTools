@@ -55,7 +55,11 @@ namespace Microsoft.Extensions.SecretManager.Tools.Internal
                     FileName = DotNetMuxer.MuxerPathOrDefault(),
                     Arguments = ArgumentEscaper.EscapeAndConcatenate(args),
                     RedirectStandardOutput = true,
-                    RedirectStandardError = true
+                    RedirectStandardError = true,
+                    Environment =
+                    {
+                        ["MSBUILDDISABLENODEREUSE"] = "1",
+                    }
                 };
 
 #if DEBUG

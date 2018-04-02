@@ -75,7 +75,11 @@ namespace Microsoft.DotNet.Watcher.Internal
                             _projectFile,
                             $"/p:_DotNetWatchListFile={watchList}"
                         }.Concat(_buildFlags),
-                        OutputCapture = capture
+                        OutputCapture = capture,
+                        EnvironmentVariables =
+                        {
+                            ["MSBUILDDISABLENODEREUSE"] = "1",
+                        }
                     };
 
                     _reporter.Verbose($"Running MSBuild target '{TargetName}' on '{_projectFile}'");
