@@ -15,7 +15,7 @@
         ],
         "Exclusions": {
           "NEUTRAL_RESOURCES_LANGUAGE": {
-            "tools/any/any/System.Runtime.CompilerServices.Unsafe.dll": "Enter justification"
+            "tools/any/any/System.Runtime.CompilerServices.Unsafe.dll": "Assembly is built by another project but bundled in our nupkg."
           },
           "WRONG_PUBLICKEYTOKEN": {
             "tools/any/any/System.Runtime.CompilerServices.Unsafe.dll": "Assembly is built by another project but bundled in our nupkg.",
