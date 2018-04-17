@@ -14,7 +14,7 @@
 
   <ItemGroup>
     <Compile Include="..\..\shared\**\*.cs" />
-    <None Include="prefercliruntime" Pack="true" PackagePath="\prefercliruntime" />
+    <None Include="prefercliruntime" Pack="true" PackagePath="\" />
   </ItemGroup>
 
   <ItemGroup>
