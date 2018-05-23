@@ -33,7 +33,7 @@ namespace Microsoft.DotNet.Watcher
             cancellationToken.Register(state => ((TaskCompletionSource<object>) state).TrySetResult(null),
                 cancelledTaskSource);
 
-            var iteration = 0;
+            var iteration = 1;
 
             while (true)
             {

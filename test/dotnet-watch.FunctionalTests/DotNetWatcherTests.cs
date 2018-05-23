@@ -38,7 +38,7 @@ namespace Microsoft.DotNet.Watcher.Tools.FunctionalTests
             await _app.StartWatcherAsync();
             var source = Path.Combine(_app.SourceDirectory, "Program.cs");
             const string messagePrefix = "DOTNET_WATCH_ITERATION = ";
-            for (var i = 0; i < 4; i++)
+            for (var i = 1; i <= 4; i++)
             {
                 var message = await _app.Process.GetOutputLineStartsWithAsync(messagePrefix, TimeSpan.FromMinutes(2));
                 var count = int.Parse(message.Substring(messagePrefix.Length), CultureInfo.InvariantCulture);
