@@ -469,7 +469,27 @@ namespace Microsoft.HttpRepl.Commands
 
         protected override string GetHelpDetails(IShellState shellState, HttpState programState, DefaultCommandInput<ICoreParseResult> commandInput, ICoreParseResult parseResult)
         {
-            return $"Issues a {Verb.ToUpperInvariant()} request";
+            var helpText = new StringBuilder();
+
+            helpText.AppendLine($"Issues a {Verb.ToUpperInvariant()} request.");
+            helpText.AppendLine();
+            helpText.AppendLine("Options:");
+
+            foreach (var subDetail in _inputSpec.Options)
+            {
+                var subDetailText = string.Empty;
+                foreach (var form in subDetail.Forms)
+                {
+                    if (!string.IsNullOrEmpty(subDetailText))
+                    {
+                        subDetailText += "|";
+                    }
+                    subDetailText += form;
+                }
+                helpText.AppendLine(subDetailText);
+            }
+
+            return helpText.ToString();
         }
 
         public override string GetHelpSummary(IShellState shellState, HttpState programState)

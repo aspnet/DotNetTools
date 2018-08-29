@@ -66,12 +66,7 @@ namespace Microsoft.HttpRepl.Commands
 
         protected override string GetHelpDetails(IShellState shellState, HttpState programState, DefaultCommandInput<ICoreParseResult> commandInput, ICoreParseResult parseResult)
         {
-            if (commandInput.Arguments.Count == 1 && !string.IsNullOrEmpty(commandInput.Arguments[0]?.Text))
-            {
-                return "Prints the current directory if no argument is specified, otherwise changes to the specified directory";
-            }
-
-            return "Changes to the directory " + commandInput.Arguments[0].Text;
+            return "Prints the current directory if no argument is specified, otherwise changes to the specified directory e.g. `cd /api/values`";
         }
 
         public override string GetHelpSummary(IShellState shellState, HttpState programState)

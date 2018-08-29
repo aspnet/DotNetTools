@@ -41,7 +41,7 @@ namespace Microsoft.HttpRepl.Commands
 
         protected override string GetHelpDetails(IShellState shellState, HttpState programState, DefaultCommandInput<ICoreParseResult> commandInput, ICoreParseResult parseResult)
         {
-            return "Turns request echoing on or off";
+            return "Turns request echoing on or off. Request echoing will show a text representation of the request that was made.";
         }
 
         public override string GetHelpSummary(IShellState shellState, HttpState programState)
