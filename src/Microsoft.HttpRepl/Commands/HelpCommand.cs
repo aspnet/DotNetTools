@@ -47,7 +47,30 @@ namespace Microsoft.HttpRepl.Commands
                             if (!string.IsNullOrEmpty(help))
                             {
                                 anyHelp = true;
+                                shellState.ConsoleManager.WriteLine();
                                 shellState.ConsoleManager.WriteLine(help);
+
+                                var structuredCommand = command as CommandWithStructuredInputBase<HttpState, ICoreParseResult>;
+                                if (structuredCommand != null && structuredCommand.InputSpec.Options.Any())
+                                {
+                                    shellState.ConsoleManager.WriteLine();
+                                    shellState.ConsoleManager.WriteLine("Options:".Bold());
+                                    foreach (var option in structuredCommand.InputSpec.Options)
+                                    {
+                                        var optionText = string.Empty;
+                                        foreach (var form in option.Forms)
+                                        {
+                                            if (!string.IsNullOrEmpty(optionText))
+                                            {
+                                                optionText += "|";
+                                            }
+                                            optionText += form;
+                                        }
+                                        shellState.ConsoleManager.WriteLine($"    {optionText}");
+                                    }
+                                }
+
+                                break;
                             }
                         }
                     }

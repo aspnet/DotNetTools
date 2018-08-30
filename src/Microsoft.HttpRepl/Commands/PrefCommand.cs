@@ -44,6 +44,7 @@ namespace Microsoft.HttpRepl.Commands
         protected override string GetHelpDetails(IShellState shellState, HttpState programState, DefaultCommandInput<ICoreParseResult> commandInput, ICoreParseResult parseResult)
         {
             var helpText = new StringBuilder();
+            helpText.Append("Usage: ".Bold());
 
             if (commandInput.Arguments.Count == 0 || !_allowedSubcommands.Contains(commandInput.Arguments[0]?.Text))
             {
@@ -190,7 +191,7 @@ namespace Microsoft.HttpRepl.Commands
             return Task.CompletedTask;
         }
 
-        protected override CommandInputSpecification InputSpec { get; } = CommandInputSpecification.Create("pref")
+        public override CommandInputSpecification InputSpec { get; } = CommandInputSpecification.Create("pref")
             .MinimumArgCount(1)
             .MaximumArgCount(3)
             .Finish();

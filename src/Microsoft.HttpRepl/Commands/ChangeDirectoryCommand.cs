@@ -4,11 +4,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.HttpRepl.Suggestions;
 using Microsoft.Repl;
 using Microsoft.Repl.Commanding;
+using Microsoft.Repl.ConsoleHandling;
 using Microsoft.Repl.Parsing;
 
 namespace Microsoft.HttpRepl.Commands
@@ -60,13 +62,19 @@ namespace Microsoft.HttpRepl.Commands
             return Task.CompletedTask;
         }
 
-        protected override CommandInputSpecification InputSpec { get; } = CommandInputSpecification.Create("cd")
+        public override CommandInputSpecification InputSpec { get; } = CommandInputSpecification.Create("cd")
             .MaximumArgCount(1)
             .Finish();
 
         protected override string GetHelpDetails(IShellState shellState, HttpState programState, DefaultCommandInput<ICoreParseResult> commandInput, ICoreParseResult parseResult)
         {
-            return "Prints the current directory if no argument is specified, otherwise changes to the specified directory e.g. `cd /api/values`";
+            var help = new StringBuilder();
+            help.Append("Usage:".Bold());
+            help.AppendLine("cd [directory]");
+            help.AppendLine();
+            help.AppendLine("Prints the current directory if no argument is specified, otherwise changes to the specified directory");
+
+            return help.ToString();
         }
 
         public override string GetHelpSummary(IShellState shellState, HttpState programState)
