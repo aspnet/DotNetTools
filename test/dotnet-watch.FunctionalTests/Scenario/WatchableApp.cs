@@ -41,8 +41,10 @@ namespace Microsoft.DotNet.Watcher.Tools.FunctionalTests
 
         public string SourceDirectory { get; }
 
-        public Task HasRestarted()
-            => Process.GetOutputLineAsync(StartedMessage, DefaultMessageTimeOut);
+        public async Task HasRestarted()
+        {
+            await Process.GetOutputLineAsync(StartedMessage, DefaultMessageTimeOut);
+        }
 
         public async Task HasExited()
         {

@@ -80,16 +80,16 @@ namespace Microsoft.DotNet.Watcher.Tools.FunctionalTests
         public async Task<string> GetOutputLineAsync(string message, TimeSpan timeout)
         {
             _logger.WriteLine($"Waiting for output line [msg == '{message}']. Will wait for {timeout.TotalSeconds} sec.");
-            return await GetOutputLineAsync(m => string.Equals(m, message, StringComparison.Ordinal)).TimeoutAfter(timeout);
+            return await GetOutputLineAsync($"[msg == '{message}']", m => string.Equals(m, message, StringComparison.Ordinal)).TimeoutAfter(timeout);
         }
 
         public async Task<string> GetOutputLineStartsWithAsync(string message, TimeSpan timeout)
         {
             _logger.WriteLine($"Waiting for output line [msg.StartsWith('{message}')]. Will wait for {timeout.TotalSeconds} sec.");
-            return await GetOutputLineAsync(m => m != null && m.StartsWith(message, StringComparison.Ordinal)).TimeoutAfter(timeout);
+            return await GetOutputLineAsync($"[msg.StartsWith('{message}')]", m => m != null && m.StartsWith(message, StringComparison.Ordinal)).TimeoutAfter(timeout);
         }
 
-        private async Task<string> GetOutputLineAsync(Predicate<string> predicate)
+        private async Task<string> GetOutputLineAsync(string predicateName, Predicate<string> predicate)
         {
             while (!_source.Completion.IsCompleted)
             {
@@ -97,8 +97,9 @@ namespace Microsoft.DotNet.Watcher.Tools.FunctionalTests
                 {
                     var next = await _source.ReceiveAsync();
                     _lines.Add(next);
-                    _logger.WriteLine($"{DateTime.Now}: recv: '{next}'");
-                    if (predicate(next))
+                    var match = predicate(next);
+                    _logger.WriteLine($"{DateTime.Now}: recv: '{next}'. {(match ? "Matches" : "Does not match")} condition '{predicateName}'.");
+                    if (match)
                     {
                         return next;
                     }
