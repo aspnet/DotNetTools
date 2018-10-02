@@ -4,13 +4,12 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
-using Microsoft.AspNetCore.Testing;
 using Microsoft.Extensions.Internal;
 using Microsoft.Extensions.CommandLineUtils;
 using Xunit.Abstractions;
-using System.Threading;
 
 namespace Microsoft.DotNet.Watcher.Tools.FunctionalTests
 {
