@@ -95,14 +95,10 @@ namespace Microsoft.DotNet.Watcher.Tools.FunctionalTests
 
         private async Task<string> GetOutputLineAsync(string predicateName, Predicate<string> predicate, CancellationToken cancellationToken)
         {
-            cancellationToken.ThrowIfCancellationRequested();
-
             while (!_source.Completion.IsCompleted)
             {
                 while (await _source.OutputAvailableAsync(cancellationToken))
                 {
-                    cancellationToken.ThrowIfCancellationRequested();
-
                     var next = await _source.ReceiveAsync(cancellationToken);
                     _lines.Add(next);
                     var match = predicate(next);
@@ -119,15 +115,11 @@ namespace Microsoft.DotNet.Watcher.Tools.FunctionalTests
 
         public async Task<IList<string>> GetAllOutputLinesAsync(CancellationToken cancellationToken)
         {
-            cancellationToken.ThrowIfCancellationRequested();
-
             var lines = new List<string>();
             while (!_source.Completion.IsCompleted)
             {
                 while (await _source.OutputAvailableAsync(cancellationToken))
                 {
-                    cancellationToken.ThrowIfCancellationRequested();
-
                     var next = await _source.ReceiveAsync(cancellationToken);
                     _logger.WriteLine($"{DateTime.Now}: recv: '{next}'");
                     lines.Add(next);
