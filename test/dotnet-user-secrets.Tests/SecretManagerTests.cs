@@ -327,8 +327,10 @@ namespace Microsoft.Extensions.SecretManager.Tools.Tests
         [Fact]
         public void Init_When_Project_Has_No_Secrets_Id()
         {
-            var project = Path.Combine(_fixture.CreateProject(null), "TestProject.csproj");
-            var secretManager = CreateProgram();
+            var projectPath = _fixture.CreateProject(null);
+            var project = Path.Combine(projectPath, "TestProject.csproj");
+            var secretManager = new Program(_console, projectPath);
+
             secretManager.RunInternal("init", "-p", project);
 
             Assert.DoesNotContain(Resources.FormatError_ProjectMissingId(project), _output.ToString());

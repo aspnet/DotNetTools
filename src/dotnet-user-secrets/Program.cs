@@ -73,7 +73,7 @@ namespace Microsoft.Extensions.SecretManager.Tools
 
             if (options.Command is InitCommand initCmd)
             {
-                initCmd.Execute(new CommandContext(null, reporter, _console));
+                initCmd.Execute(new CommandContext(null, reporter, _console), _workingDirectory);
                 return 0;
             }
 
