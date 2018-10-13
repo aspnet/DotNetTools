@@ -327,11 +327,11 @@ namespace Microsoft.Extensions.SecretManager.Tools.Tests
         [Fact]
         public void Init_When_Project_Has_No_Secrets_Id()
         {
-            var projectPath = _fixture.CreateProject(null);
+            var project = Path.Combine(_fixture.CreateProject(null), "TestProject.csproj");
             var secretManager = CreateProgram();
-            secretManager.RunInternal("init", "-p", projectPath);
+            secretManager.RunInternal("init", "-p", project);
 
-            Assert.DoesNotContain(Resources.Error_ProjectMissingId, _output.ToString());
+            Assert.DoesNotContain(Resources.FormatError_ProjectMissingId(project), _output.ToString());
             Assert.DoesNotContain("--help", _output.ToString());
         }
     }
