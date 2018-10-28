@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.IO;
 using System.Text;
 using Microsoft.Extensions.Configuration.UserSecrets.Tests;
@@ -100,6 +101,19 @@ namespace Microsoft.Extensions.SecretManager.Tools.Tests
             var idResolver = new ProjectIdResolver(MakeCommandContext().Reporter, projectDir);
 
             Assert.Equal(NewId, idResolver.Resolve(null, null));
+        }
+
+        [Fact]
+        public void FailsForInvalidId()
+        {
+            string secretId = $"invalid{Path.GetInvalidPathChars()[0]}secret-id";
+
+            var projectDir = _fixture.CreateProject(null);
+
+            Assert.Throws<ArgumentException>(() =>
+            {
+                new InitCommand(secretId, null).Execute(MakeCommandContext(), projectDir);
+            });
         }
     }
 }
