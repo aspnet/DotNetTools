@@ -53,6 +53,12 @@ namespace Microsoft.Extensions.SecretManager.Tools.Internal
                 ? Guid.NewGuid().ToString()
                 : OverrideId;
 
+            // Confirm secret ID does not contain invalid characters
+            if (Path.GetInvalidPathChars().Any(invalidChar => newSecretsId.Contains(invalidChar)))
+            {
+                throw new ArgumentException(Resources.FormatError_InvalidSecretsId(newSecretsId));
+            }
+
             var existingUserSecretsId = projectDocument.XPathSelectElements("//UserSecretsId").FirstOrDefault();
 
             // Check if a UserSecretsId is already set
@@ -61,7 +67,7 @@ namespace Microsoft.Extensions.SecretManager.Tools.Internal
                 // Only set the UserSecretsId if the user specified an explicit value
                 if (string.IsNullOrWhiteSpace(OverrideId))
                 {
-                    // context.Reporter.Output(Resources.ProjectAlreadyInitialized);
+                    context.Reporter.Output(Resources.FormatMessage_ProjectAlreadyInitialized(projectPath));
                     return;
                 }
 
@@ -89,8 +95,7 @@ namespace Microsoft.Extensions.SecretManager.Tools.Internal
 
             projectDocument.Save(projectPath);
 
-            // TODO: i18n
-            context.Reporter.Output($"Successfully added UserSecretsId '{newSecretsId}' to MSBuild project '{projectPath}'");
+            context.Reporter.Output(Resources.FormatMessage_SetUserSecretsIdForProject(newSecretsId, projectPath));
         }
 
         private static string ResolveProjectPath(string name, string path)
