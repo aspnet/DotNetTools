@@ -1,7 +1,7 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
     <OutputType>exe</OutputType>
     <Description>Command line tool to create tables and indexes in a Microsoft SQL Server database for distributed caching.</Description>
     <PackageTags>cache;distributedcache;sqlserver</PackageTags>
@@ -25,6 +25,7 @@
     <ExcludePackageFileFromSigning Include="$(PublishDir)runtimes/win-x64/native/sni.dll" PackagePath="tools/$(TargetFramework)/any/runtimes/win-x64/native/sni.dll" />
     <ExcludePackageFileFromSigning Include="$(PublishDir)runtimes/win-x86/native/sni.dll" PackagePath="tools/$(TargetFramework)/any/runtimes/win-x86/native/sni.dll" />
     <ExcludePackageFileFromSigning Include="$(PublishDir)System.Data.SqlClient.dll" PackagePath="tools/$(TargetFramework)/any/System.Data.SqlClient.dll" />
+    <ExcludePackageFileFromSigning Include="$(PublishDir)System.Security.Permissions.dll" PackagePath="tools/$(TargetFramework)/any/System.Security.Permissions.dll" />
     <ExcludePackageFileFromSigning Include="$(PublishDir)runtimes/unix/lib/netcoreapp2.1/System.Data.SqlClient.dll" PackagePath="tools/$(TargetFramework)/any/runtimes/unix/lib/netcoreapp2.1/System.Data.SqlClient.dll" />
     <ExcludePackageFileFromSigning Include="$(PublishDir)runtimes/win/lib/netcoreapp2.1/System.Data.SqlClient.dll" PackagePath="tools/$(TargetFramework)/any/runtimes/win/lib/netcoreapp2.1/System.Data.SqlClient.dll" />
     <ExcludePackageFileFromSigning Include="$(PublishDir)System.Runtime.CompilerServices.Unsafe.dll" PackagePath="tools/$(TargetFramework)/any/System.Runtime.CompilerServices.Unsafe.dll" />

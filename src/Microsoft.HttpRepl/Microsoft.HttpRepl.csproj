@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
     <PackAsTool>true</PackAsTool>
     <AssemblyName>dotnet-httprepl</AssemblyName>
     <LangVersion>latest</LangVersion>
@@ -10,6 +10,9 @@
     <PackageTags>dotnet;http;httprepl</PackageTags>
     <!-- This is a requirement for Microsoft tool packages only. -->
     <PackAsToolShimRuntimeIdentifiers>win-x64;win-x86</PackAsToolShimRuntimeIdentifiers>
+
+    <!-- Temporarily disables producing this project as a package while we work through some RTM-blocking bugs. -->
+    <IsPackable>false</IsPackable>
   </PropertyGroup>
 
   <ItemGroup>
