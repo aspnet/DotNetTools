@@ -1,9 +1,11 @@
+// Copyright (c) .NET Foundation. All rights reserved.
+// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+
+using System.IO;
+using System.Text;
 using Microsoft.Extensions.Configuration.UserSecrets.Tests;
 using Microsoft.Extensions.SecretManager.Tools.Internal;
 using Microsoft.Extensions.Tools.Internal;
-using System;
-using System.IO;
-using System.Text;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -72,20 +74,32 @@ namespace Microsoft.Extensions.SecretManager.Tools.Tests
         }
 
         [Fact]
-        public void IgnoresProjectWithSecretId()
+        public void DoesNotGenerateIdForProjectWithSecretId()
         {
             const string SecretId = "AlreadyExists";
 
             var projectDir = _fixture.CreateProject(SecretId);
 
-            Assert.Throws<NotImplementedException>(() =>
-            {
-                new InitCommand(null, null).Execute(MakeCommandContext(), projectDir);
-            });
+            new InitCommand(null, null).Execute(MakeCommandContext(), projectDir);
 
             var idResolver = new ProjectIdResolver(MakeCommandContext().Reporter, projectDir);
 
             Assert.Equal(SecretId, idResolver.Resolve(null, null));
+        }
+
+        [Fact]
+        public void OverridesIdForProjectWithSecretId()
+        {
+            const string SecretId = "AlreadyExists";
+            const string NewId = "TestValue";
+
+            var projectDir = _fixture.CreateProject(SecretId);
+
+            new InitCommand(NewId, null).Execute(MakeCommandContext(), projectDir);
+
+            var idResolver = new ProjectIdResolver(MakeCommandContext().Reporter, projectDir);
+
+            Assert.Equal(NewId, idResolver.Resolve(null, null));
         }
     }
 }

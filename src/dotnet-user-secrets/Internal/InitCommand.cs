@@ -1,9 +1,12 @@
-using Microsoft.Extensions.CommandLineUtils;
+// Copyright (c) .NET Foundation. All rights reserved.
+// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+
 using System;
 using System.IO;
 using System.Linq;
 using System.Xml.Linq;
 using System.Xml.XPath;
+using Microsoft.Extensions.CommandLineUtils;
 
 namespace Microsoft.Extensions.SecretManager.Tools.Internal
 {
@@ -30,18 +33,7 @@ namespace Microsoft.Extensions.SecretManager.Tools.Internal
             ProjectPath = project;
         }
 
-        private static string ResolveProjectPath(string name, string path)
-        {
-            var finder = new MsBuildProjectFinder(path);
-            return finder.FindMsBuildProject(name);
-        }
 
-        private static bool HasConditionalParent(XElement el)
-        {
-            return el.Ancestors().Any(ancestor =>
-                ancestor.Attributes().Any(attribute =>
-                    attribute.Name == "Condition"));
-        }
 
         public void Execute(CommandContext context, string workingDirectory)
         {
@@ -56,44 +48,55 @@ namespace Microsoft.Extensions.SecretManager.Tools.Internal
             // Load the project file as XML
             var projectDocument = XDocument.Load(projectPath);
 
-            // Confirm a UserSecretsId isn't already set
-            if (projectDocument.XPathSelectElements("//UserSecretsId").Any())
-            {
-                // TODO: i18n
-                context.Reporter.Error($"MSBuild project '{projectPath}' already contains a UserSecretsId.");
-                // TODO: correct error reporting approach
-                throw new NotImplementedException();
-            }
-
             // Accept the `--id` CLI option to the main app
             string newSecretsId = string.IsNullOrWhiteSpace(OverrideId)
                 ? Guid.NewGuid().ToString()
                 : OverrideId;
 
-            // Find the first non-conditional PropertyGroup
-            var propertyGroup = projectDocument.Root.DescendantNodes()
-                .FirstOrDefault(node => node is XElement el
-                    && el.Name == "PropertyGroup"
-                    && el.Attributes().All(attr =>
-                        attr.Name != "Condition")) as XElement;
+            var existingUserSecretsId = projectDocument.XPathSelectElements("//UserSecretsId").FirstOrDefault();
 
-            // No valid property group, create a new one
-            if (propertyGroup == null)
+            // Check if a UserSecretsId is already set
+            if (existingUserSecretsId != default)
             {
-                propertyGroup = XElement.Parse(@"<PropertyGroup></PropertyGroup>");
-                projectDocument.Root.AddFirst(propertyGroup);
+                // Only set the UserSecretsId if the user specified an explicit value
+                if (string.IsNullOrWhiteSpace(OverrideId))
+                {
+                    // context.Reporter.Output(Resources.ProjectAlreadyInitialized);
+                    return;
+                }
+
+                existingUserSecretsId.SetValue(newSecretsId);
             }
+            else
+            {
+                // Find the first non-conditional PropertyGroup
+                var propertyGroup = projectDocument.Root.DescendantNodes()
+                    .FirstOrDefault(node => node is XElement el
+                        && el.Name == "PropertyGroup"
+                        && el.Attributes().All(attr =>
+                            attr.Name != "Condition")) as XElement;
 
-            // Add UserSecretsId element
-            var userSecretsElement = XElement.Parse(@"<UserSecretsId></UserSecretsId>");
-            userSecretsElement.SetValue(newSecretsId);
+                // No valid property group, create a new one
+                if (propertyGroup == null)
+                {
+                    propertyGroup = new XElement("PropertyGroup");
+                    projectDocument.Root.AddFirst(propertyGroup);
+                }
 
-            propertyGroup.Add(userSecretsElement);
+                // Add UserSecretsId element
+                propertyGroup.Add(new XElement("UserSecretsId", newSecretsId));
+            }
 
             projectDocument.Save(projectPath);
 
             // TODO: i18n
             context.Reporter.Output($"Successfully added UserSecretsId '{newSecretsId}' to MSBuild project '{projectPath}'");
+        }
+
+        private static string ResolveProjectPath(string name, string path)
+        {
+            var finder = new MsBuildProjectFinder(path);
+            return finder.FindMsBuildProject(name);
         }
     }
 }
