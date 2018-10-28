@@ -10,11 +10,10 @@ using Microsoft.Extensions.CommandLineUtils;
 
 namespace Microsoft.Extensions.SecretManager.Tools.Internal
 {
-    public class InitCommand : ICommand
+    // Workaround used to handle the fact that the options have not been parsed at configuration time
+    public class InitCommandFactory : ICommand
     {
-        public string OverrideId { get; }
-        public string ProjectPath { get; }
-        public string WorkingDirectory { get; private set; } = Directory.GetCurrentDirectory();
+        public CommandLineOptions Options { get; }
 
         internal static void Configure(CommandLineApplication command, CommandLineOptions options)
         {
@@ -23,17 +22,37 @@ namespace Microsoft.Extensions.SecretManager.Tools.Internal
 
             command.OnExecute(() =>
             {
-                options.Command = new InitCommand(options.Id, options.Project);
+                options.Command = new InitCommandFactory(options);
             });
         }
+
+        public InitCommandFactory(CommandLineOptions options)
+        {
+            Options = options;
+        }
+
+        public void Execute(CommandContext context)
+        {
+            new InitCommand(Options.Id, Options.Project).Execute(context);
+        }
+
+        public void Execute(CommandContext context, string workingDirectory)
+        {
+            new InitCommand(Options.Id, Options.Project).Execute(context, workingDirectory);
+        }
+    }
+
+    public class InitCommand : ICommand
+    {
+        public string OverrideId { get; }
+        public string ProjectPath { get; }
+        public string WorkingDirectory { get; private set; } = Directory.GetCurrentDirectory();
 
         public InitCommand(string id, string project)
         {
             OverrideId = id;
             ProjectPath = project;
         }
-
-
 
         public void Execute(CommandContext context, string workingDirectory)
         {
